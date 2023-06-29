@@ -1,0 +1,33 @@
+{
+  "name": "kaadon/thinkbase",
+  "type": "library",
+  "description": "kaadon thinkbase for ThinkPhp6.0",
+  "keywords": [
+    "kaadon thinkbase",
+    "thinkbase",
+    "kaadon"
+  ],
+  "homepage": "https://developer.kaadon.com/",
+  "license": "Apache-2.0",
+  "require": {
+    "PHP": ">=8.0"
+  },
+  "authors": [
+    {
+      "name": "kaadon",
+      "email": "kaadon.com@gmail.com",
+      "homepage": "https://www.kaadon.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Kaadon\\ThinkBase\\": "src"
+    },
+    "files": [
+      "src/helper.php"
+    ]
+  },
+  "require-dev": {
+    "topthink/framework": "^6.1"
+  }
+}
