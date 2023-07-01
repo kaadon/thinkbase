@@ -141,7 +141,7 @@ class File
 
     /**
      * 删除目录及目录下所有文件或删除指定文件
-     * @param str $path 待删除目录路径
+     * @param string $path 待删除目录路径
      * @param int $delDir 是否删除目录
      * @return bool 返回删除状态
      */
