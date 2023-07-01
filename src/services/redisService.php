@@ -52,16 +52,14 @@ class redisService
 
 
     /**
-     * 静态实例
-     *
      * @param int         $select
      * @param string|null $host
      * @param int|null    $port
      * @param string|null $password
      *
-     * @return redisService
+     * @return \Redis
      */
-    public static function instance(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null): redisService
+    public static function instance(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
     {
         return new self($select, $host, $port, $password);
     }
