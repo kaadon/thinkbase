@@ -12,7 +12,8 @@
   "require": {
     "PHP": ">=8.0",
     "ext-zip": "*",
-    "ext-curl": "*"
+    "ext-curl": "*",
+    "ext-redis": "*"
   },
   "authors": [
     {
@@ -26,6 +27,7 @@
       "Kaadon\\ThinkBase\\": "src"
     },
     "files": [
+      "src/helper.php"
     ]
   },
   "require-dev": {
