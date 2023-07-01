@@ -98,6 +98,7 @@ abstract class BaseJobs implements JobsInterface
             return false;
         }
         $queueData['task'] = $task;
+
         if (!empty($queue)) {
             $queueData['queue'] = $queue;
         } else {
