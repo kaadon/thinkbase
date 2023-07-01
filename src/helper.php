@@ -10,6 +10,7 @@
 /** REDIS **/
 
 use Kaadon\ThinkBase\services\redisService;
+use think\Model;
 
 if (!function_exists('redisCacheSet')) {
 
@@ -70,5 +71,60 @@ if (!function_exists('redisCacheDel')) {
     function redisCacheDel(string $name, int $select = 1): Redis|int|bool
     {
         return redisService::instance($select)->del("cache:" . $name);
+    }
+}
+
+if (!function_exists('paginate')) {
+
+
+    /**
+     * 数据库返回处理
+     *
+     * @param Model $data
+     *
+     * @return array
+     */
+    function paginate(Model $data): array
+    {
+        [
+            "current_page" => $current_page,
+            "data"         => $data,
+            "per_page"     => $per_page,
+            "last_page"    => $last_page,
+            "total"        => $total
+        ]
+            = $data->toArray();
+        return [
+            "page"  => $current_page,
+            "pages" => $last_page,
+            "list"  => $data,
+            "limit" => $per_page,
+            "count" => $total
+        ];
+    }
+}
+
+if (!function_exists('is_debug')) {
+    /**
+     * 是否为DEBUG
+     *
+     * @return bool|null
+     */
+    function is_debug(): ?bool
+    {
+        return \think\facade\Env::get("app_debug") ?? false;
+    }
+}
+
+
+if (!function_exists('is_dev')) {
+    /**
+     * 是否为DEV开发模式
+     *
+     * @return bool|null
+     */
+    function is_dev(): ?bool
+    {
+        return \think\facade\Env::get("app_dev") ?? false;
     }
 }
