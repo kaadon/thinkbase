@@ -11,6 +11,8 @@
 
 use Kaadon\ThinkBase\services\redisService;
 use think\Model;
+use think\Response;
+use think\response\Json;
 
 if (!function_exists('redisCacheSet')) {
 
@@ -19,8 +21,8 @@ if (!function_exists('redisCacheSet')) {
      *
      * @param string $name
      * @param        $value
-     * @param int    $expire
-     * @param int    $select
+     * @param int $expire
+     * @param int $select
      *
      * @return bool
      */
@@ -40,8 +42,8 @@ if (!function_exists('redisCacheGet')) {
     /**
      * 获取缓存
      *
-     * @param string $name   //key
-     * @param int    $select //redis库
+     * @param string $name //key
+     * @param int $select //redis库
      *
      * @return array|bool|int
      * @throws RedisException
@@ -63,14 +65,15 @@ if (!function_exists('redisCacheDel')) {
      * 删除缓存
      *
      * @param string $name
-     * @param int    $select
+     * @param int $select
      *
      * @return Redis|int|bool
      * @throws RedisException
      */
     function redisCacheDel(string $name, int $select = 1): Redis|int|bool
     {
-        return redisService::instance($select)->del("cache:" . $name);
+        return redisService::instance($select)
+                           ->del("cache:" . $name);
     }
 }
 
@@ -86,13 +89,11 @@ if (!function_exists('paginate')) {
      */
     function paginate(Model $data): array
     {
-        [
-            "current_page" => $current_page,
-            "data"         => $data,
-            "per_page"     => $per_page,
-            "last_page"    => $last_page,
-            "total"        => $total
-        ]
+        list("current_page" => $current_page,
+            "data" => $data,
+            "per_page" => $per_page,
+            "last_page" => $last_page,
+            "total" => $total)
             = $data->toArray();
         return [
             "page"  => $current_page,
@@ -126,5 +127,102 @@ if (!function_exists('is_dev')) {
     function is_dev(): ?bool
     {
         return \think\facade\Env::get("app_dev") ?? false;
+    }
+}
+
+
+/** RETURN **/
+if (!function_exists('success')) {
+    /**
+     * @param array $data //数据
+     * @param string $msg //语言
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function success(array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
+    {
+        $message = '';
+        if (strpos($msg, "::") !== false) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            $message = lang($msg);
+        }
+        $resultData = [
+            'code'    => $statusCode,
+            'message' => $message,
+            'data'    => $data,
+            'time'    => time()
+        ];
+
+        return json($resultData);
+    }
+}
+
+if (!function_exists('error')) {
+    /**
+     * @param string $msg //语言
+     * @param int $statusCode //错误码
+     * @param array $err //错误内容
+     *
+     * @return Json
+     */
+    function error(string $msg = 'error', int $statusCode = 201, array $err = []): Json
+    {
+        $message = '';
+        if (strpos($msg, "::") !== false) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            $message = lang($msg);
+        }
+        $resultData = [
+            'code'    => $statusCode,
+            'message' => $message,
+            'error'   => $err,
+            'time'    => time()
+        ];
+        return json($resultData);
+    }
+}
+
+if (!function_exists('result')) {
+    /**
+     * @description: 其他状态
+     *
+     * @param string $msg
+     * @param string|array|null $data
+     * @param int $code
+     * @return Json {*} 返回值
+     */
+    function result(string $msg = 'success', string|array|null $data = [], int $code = 200): Json
+    {
+        $message = '';
+        if (strpos($msg, "::") !== false) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            $message = lang($msg);
+        }
+        $data = [
+            'code' => $code,
+            'msg'  => $message,
+            'time' => time(),
+            'data' => $data,
+        ];
+        return json($data);
     }
 }
