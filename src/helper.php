@@ -225,34 +225,4 @@ if (!function_exists('error')) {
     }
 }
 
-if (!function_exists('result')) {
-    /**
-     * @description: 其他状态
-     *
-     * @param string $msg
-     * @param string|array|null $data
-     * @param int $code
-     * @return Json {*} 返回值
-     */
-    function result(string $msg = 'success', string|array|null $data = [], int $code = 200): Json
-    {
-        $message = '';
-        if (strpos($msg, "::") !== false) {
-            $msgArr = explode('::', $msg);
-            foreach ($msgArr as $item) {
-                if (!empty($item)) {
-                    $message .= lang($item);
-                }
-            }
-        } else {
-            if (empty($msg)) $message = lang($msg);
-        }
-        $data = [
-            'code' => $code,
-            'msg'  => $message,
-            'time' => time(),
-            'data' => $data,
-        ];
-        return json($data);
-    }
-}
+
