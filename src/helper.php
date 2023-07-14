@@ -163,7 +163,37 @@ if (!function_exists('success')) {
         return json($resultData);
     }
 }
+if (!function_exists('successes')) {
+    /**
+     * @param array $data //数据
+     * @param string $msg //语言
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function successes(string $msg = "success",array|string|null $data = null, int $statusCode = 200): Json
+    {
+        $message = '';
+        if (strpos($msg, "::") !== false) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            $message = lang($msg);
+        }
+        $resultData = [
+            'code'    => $statusCode,
+            'message' => $message,
+            'data'    => $data,
+            'time'    => time()
+        ];
 
+        return json($resultData);
+    }
+}
 if (!function_exists('error')) {
     /**
      * @param string $msg //语言
