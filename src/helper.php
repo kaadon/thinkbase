@@ -151,7 +151,7 @@ if (!function_exists('success')) {
                 }
             }
         } else {
-            $message = lang($msg);
+            if (empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
@@ -171,7 +171,7 @@ if (!function_exists('successes')) {
      *
      * @return Json
      */
-    function successes(string $msg = "success",array|string|null $data = null, int $statusCode = 200): Json
+    function successes(string $msg = "success", array|string|null $data = null, int $statusCode = 200): Json
     {
         $message = '';
         if (strpos($msg, "::") !== false) {
@@ -182,7 +182,7 @@ if (!function_exists('successes')) {
                 }
             }
         } else {
-            $message = lang($msg);
+            if (empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
@@ -213,7 +213,7 @@ if (!function_exists('error')) {
                 }
             }
         } else {
-            $message = lang($msg);
+            if (empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
@@ -245,7 +245,7 @@ if (!function_exists('result')) {
                 }
             }
         } else {
-            $message = lang($msg);
+            if (empty($msg)) $message = lang($msg);
         }
         $data = [
             'code' => $code,
