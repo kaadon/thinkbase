@@ -141,7 +141,7 @@ if (!function_exists('success')) {
      *
      * @return Json
      */
-    function success(array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
+    function success(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
     {
         if ($data instanceof Model) $data = $data->toArray();
         $message = '';
@@ -173,7 +173,7 @@ if (!function_exists('successes')) {
      *
      * @return Json
      */
-    function successes(string $msg = "success", array|string|null $data = null, int $statusCode = 200): Json
+    function successes(string $msg = "success", object|array|string|null $data = null, int $statusCode = 200): Json
     {
         if ($data instanceof Model) $data = $data->toArray();
         $message = '';
