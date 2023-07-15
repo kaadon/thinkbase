@@ -87,14 +87,15 @@ if (!function_exists('paginate')) {
      *
      * @return array
      */
-    function paginate(Model $data): array
+    function paginate(object|array $data): array
     {
+        if ($data instanceof Model) $data = $data->toArray();
         list("current_page" => $current_page,
             "data" => $data,
             "per_page" => $per_page,
             "last_page" => $last_page,
             "total" => $total)
-            = $data->toArray();
+            = $data;
         return [
             "page"  => $current_page,
             "pages" => $last_page,
