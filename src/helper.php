@@ -11,6 +11,7 @@
 
 use Kaadon\ThinkBase\services\redisService;
 use think\Model;
+use think\paginator\driver\Bootstrap;
 use think\Response;
 use think\response\Json;
 
