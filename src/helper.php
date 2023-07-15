@@ -142,6 +142,7 @@ if (!function_exists('success')) {
      */
     function success(array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
     {
+        if ($data instanceof Model) $data = $data->toArray();
         $message = '';
         if (strpos($msg, "::") !== false) {
             $msgArr = explode('::', $msg);
@@ -173,6 +174,7 @@ if (!function_exists('successes')) {
      */
     function successes(string $msg = "success", array|string|null $data = null, int $statusCode = 200): Json
     {
+        if ($data instanceof Model) $data = $data->toArray();
         $message = '';
         if (strpos($msg, "::") !== false) {
             $msgArr = explode('::', $msg);
