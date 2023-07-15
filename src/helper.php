@@ -78,31 +78,27 @@ if (!function_exists('redisCacheDel')) {
 }
 
 if (!function_exists('paginate')) {
-
-
     /**
-     * 数据库返回处理
-     *
-     * @param Model $data
-     *
-     * @return array
+     * 数据分页处理
+     * @param object|array $data
+     * @return Json
      */
-    function paginate(object|array $data): array
+    function paginate(object|array $data, array $param = []): Json
     {
-        if ($data instanceof Model) $data = $data->toArray();
+        if ($data instanceof Bootstrap) $data = $data->toArray();
         list("current_page" => $current_page,
-            "data" => $data,
             "per_page" => $per_page,
             "last_page" => $last_page,
             "total" => $total)
             = $data;
-        return [
-            "page"  => $current_page,
+        $param = array_merge($param, [
+            "page" => $current_page,
             "pages" => $last_page,
-            "list"  => $data,
+            "list" => $data,
             "limit" => $per_page,
             "count" => $total
-        ];
+        ]);
+        return success($param);
     }
 }
 
