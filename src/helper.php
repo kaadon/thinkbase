@@ -10,9 +10,9 @@
 /** REDIS **/
 
 use Kaadon\ThinkBase\services\redisService;
+use think\facade\Env;
 use think\Model;
 use think\paginator\driver\Bootstrap;
-use think\Response;
 use think\response\Json;
 
 if (!function_exists('redisCacheSet')) {
@@ -33,7 +33,7 @@ if (!function_exists('redisCacheSet')) {
             $redis = redisService::instance($select);
             $redis->set('cache:' . $name, json_encode($value));
             $redis->expire('cache:' . $name, $expire);
-        } catch (\Exception $exception) {
+        } catch (\Exception) {
             return false;
         }
         return true;
@@ -81,7 +81,8 @@ if (!function_exists('redisCacheDel')) {
 if (!function_exists('paginate')) {
     /**
      * 数据分页处理
-     * @param object|array $data
+     * @param object|array $paginateData
+     * @param array $param
      * @return Json
      */
     function paginate(object|array $paginateData, array $param = []): Json
@@ -113,7 +114,7 @@ if (!function_exists('is_debug')) {
      */
     function is_debug(): ?bool
     {
-        return \think\facade\Env::get("app_debug") ?? false;
+        return Env::get("app_debug") ?? false;
     }
 }
 
@@ -126,7 +127,7 @@ if (!function_exists('is_dev')) {
      */
     function is_dev(): ?bool
     {
-        return \think\facade\Env::get("app_dev") ?? false;
+        return Env::get("app_dev") ?? false;
     }
 }
 
