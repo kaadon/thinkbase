@@ -153,11 +153,11 @@ if (!function_exists('success')) {
                 }
             }
         } else {
-            if (empty($msg)) $message = lang($msg);
+            if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
-            'message' => $message,
+            'message' => empty($message)?$msg:$message,
             'data'    => $data,
             'time'    => time()
         ];
@@ -185,11 +185,11 @@ if (!function_exists('successes')) {
                 }
             }
         } else {
-            if (empty($msg)) $message = lang($msg);
+            if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
-            'message' => $message,
+            'message' => empty($message)?$msg:$message,
             'data'    => $data,
             'time'    => time()
         ];
@@ -201,11 +201,11 @@ if (!function_exists('error')) {
     /**
      * @param string $msg //语言
      * @param int $statusCode //错误码
-     * @param array $err //错误内容
+     * @param array|string $err //错误内容
      *
      * @return Json
      */
-    function error(string $msg = 'error', int $statusCode = 201, array $err = []): Json
+    function error(string $msg = 'error', int $statusCode = 201, array|string $err = []): Json
     {
         $message = '';
         if (strpos($msg, "::") !== false) {
@@ -216,11 +216,11 @@ if (!function_exists('error')) {
                 }
             }
         } else {
-            if (empty($msg)) $message = lang($msg);
+            if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
             'code'    => $statusCode,
-            'message' => $message,
+            'message' => empty($message)?$msg:$message,
             'error'   => $err,
             'time'    => time()
         ];
