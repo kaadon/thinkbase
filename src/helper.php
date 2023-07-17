@@ -84,18 +84,20 @@ if (!function_exists('paginate')) {
      * @param object|array $data
      * @return Json
      */
-    function paginate(object|array $data, array $param = []): Json
+    function paginate(object|array $paginateData, array $param = []): Json
     {
-        if ($data instanceof Bootstrap) $data = $data->toArray();
+        if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
         list("current_page" => $current_page,
             "per_page" => $per_page,
             "last_page" => $last_page,
+            "data" => $list,
             "total" => $total)
-            = $data;
+            = $paginateData;
+
         $param = array_merge($param, [
             "page" => $current_page,
             "pages" => $last_page,
-            "list" => $data,
+            "list" => $list,
             "limit" => $per_page,
             "count" => $total
         ]);
