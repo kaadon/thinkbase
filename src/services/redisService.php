@@ -47,7 +47,6 @@ class redisService
         if (!is_null($password)) {
             $this->password = Env::get('redis.password', "");
         }
-        return $this->redisClient($this->select);
     }
 
 
@@ -61,7 +60,7 @@ class redisService
      */
     public static function instance(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
     {
-        return new self($select, $host, $port, $password);
+        return (new self($select, $host, $port, $password))->redisClient();
     }
 
     /**
