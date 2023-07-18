@@ -78,6 +78,51 @@ if (!function_exists('redisCacheDel')) {
     }
 }
 
+if (!function_exists('redisCacheUnlink')) {
+
+    /**
+     * 删除缓存
+     *
+     * @param string $name
+     * @param int $select
+     *
+     * @return Redis|int|bool
+     * @throws RedisException
+     */
+    function redisCacheUnlink(string $name, int $select = 1): Redis|int|bool
+    {
+        return redisService::instance($select)
+            ->unlink("cache:" . $name);
+    }
+}
+
+if (!function_exists('redisCacheUnDelAll')) {
+
+    /**
+     * 批量删除缓存
+     *
+     * @param string $name
+     * @param int $select
+     *
+     * @return Redis|int|bool
+     * @throws RedisException
+     */
+    function redisCacheUnDelAll(string $name, int $select = 1): Redis|int|bool
+    {
+        try {
+            //逻辑代码
+            $redis = redisService::instance($select);
+            $keys =$redis->keys("cache:" . $name);
+            foreach ($keys as $key) {
+                $redis->del($key);
+            }
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
+        return true;
+    }
+}
+
 if (!function_exists('paginate')) {
     /**
      * 数据分页处理
