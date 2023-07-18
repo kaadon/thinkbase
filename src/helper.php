@@ -96,7 +96,7 @@ if (!function_exists('redisCacheUnlink')) {
     }
 }
 
-if (!function_exists('redisCacheUnDelAll')) {
+if (!function_exists('redisCacheDelAll')) {
 
     /**
      * 批量删除缓存
@@ -107,7 +107,7 @@ if (!function_exists('redisCacheUnDelAll')) {
      * @return Redis|int|bool
      * @throws RedisException
      */
-    function redisCacheUnDelAll(string $name, int $select = 1): Redis|int|bool
+    function redisCacheDelAll(string $name, int $select = 1): Redis|int|bool
     {
         try {
             //逻辑代码
