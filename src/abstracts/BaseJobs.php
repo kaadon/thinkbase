@@ -45,7 +45,7 @@ abstract class BaseJobs implements JobsInterface
         } else {
             if ($job->attempts() > 2) {
                 $job->delete();
-                echo "\n执行" . $job->attempts() . "次 <" . $job->getJobId() . ">失败". $down . " \n❌ 错误为::<". $this->error . ">::,删除任务!" . "\n";
+                echo "\n执行" . $job->attempts() . "次 <" . $job->getJobId() . ">失败". $down . " \n❌ 错误为::<". $this->error . ">,删除任务!" . "\n";
             }else{
                 echo "\n执行<" . $job->getJobId() . ">失败". $down . "\n 已执行" . $job->attempts() . "次". $down . " \n❌ 错误为:". $this->error . ",\n";
             }
@@ -67,7 +67,7 @@ abstract class BaseJobs implements JobsInterface
         ) {
             $task = $this->JobData['task'];
             try {
-                echo "\n 👉🏻 任务数据: \n" . json_encode($this->JobData['data']) . " \n";
+                echo "\n 👉🏻 任务数据: \n" . json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE) . " \n";
                 echo "\n 👉🏻 业务执行数据: \n";
                 $bool = $this->jobChanel::$task($this->JobData['data']);
                 echo "\n 👉🏻 业务执行结果: \n";
