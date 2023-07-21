@@ -52,8 +52,8 @@ if (!function_exists('redisCacheGet')) {
     function redisCacheGet(string $name, int $select = 1): array|bool|int
     {
         $resultData = [];
-        $redis      = redisService::instance($select);
-        $data       = $redis->get('cache:' . $name);
+        $redis = redisService::instance($select);
+        $data = $redis->get('cache:' . $name);
         if (!empty($data)) {
             $resultData = json_decode($data, true);
         }
@@ -74,7 +74,7 @@ if (!function_exists('redisCacheDel')) {
     function redisCacheDel(string $name, int $select = 1): Redis|int|bool
     {
         return redisService::instance($select)
-                           ->del("cache:" . $name);
+            ->del("cache:" . $name);
     }
 }
 
@@ -112,7 +112,7 @@ if (!function_exists('redisCacheDelAll')) {
         try {
             //逻辑代码
             $redis = redisService::instance($select);
-            $keys =$redis->keys("cache:" . $name);
+            $keys = $redis->keys("cache:" . $name);
             foreach ($keys as $key) {
                 $redis->del($key);
             }
@@ -162,8 +162,6 @@ if (!function_exists('is_debug')) {
         return Env::get("app_debug") ?? false;
     }
 }
-
-
 if (!function_exists('is_dev')) {
     /**
      * 是否为DEV开发模式
@@ -176,11 +174,60 @@ if (!function_exists('is_dev')) {
     }
 }
 
+if (!function_exists("get_conf")) {
+    /**
+     * 获取配置
+     * @param string $group
+     * @param string $name
+     * @param string|null $key
+     * @param array|string|int|float|bool $default
+     * @return mixed|string
+     */
+    function get_conf(string $group, string $name, ?string $key = null, array|string|int|float|bool $default = "")
+    {
+        return \Yaconf::get("{$group}.{$name}.{$key}") ?? (Env::get("{$group}.{$name}.{$key}") ?: $default);
+    }
+}
 
 /** RETURN **/
+if (!function_exists('success_zip')) {
+    /**
+     * 压缩返回
+     *
+     * @param object|array|string|null $data //数据
+     * @param string $msg //语言
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function success_zip(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
+    {
+        if ($data instanceof Model) $data = $data->toArray();
+        $message = '';
+        if (strpos($msg, "::") !== false) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            if (!empty($msg)) $message = lang($msg);
+        }
+        $data = base64_encode(string: gzcompress(json_encode($data)));
+        $resultData = [
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
+        ];
+
+        return json($resultData);
+    }
+}
 if (!function_exists('success')) {
     /**
-     * @param array $data //数据
+     * @param object|array|string|null $data //数据
      * @param string $msg //语言
      * @param int $statusCode 错误码
      *
@@ -201,10 +248,10 @@ if (!function_exists('success')) {
             if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
-            'code'    => $statusCode,
-            'message' => empty($message)?$msg:$message,
-            'data'    => $data,
-            'time'    => time()
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
         ];
 
         return json($resultData);
@@ -212,8 +259,8 @@ if (!function_exists('success')) {
 }
 if (!function_exists('successes')) {
     /**
-     * @param array $data //数据
      * @param string $msg //语言
+     * @param object|array|string|null $data //数据
      * @param int $statusCode 错误码
      *
      * @return Json
@@ -233,10 +280,10 @@ if (!function_exists('successes')) {
             if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
-            'code'    => $statusCode,
-            'message' => empty($message)?$msg:$message,
-            'data'    => $data,
-            'time'    => time()
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
         ];
 
         return json($resultData);
@@ -264,10 +311,10 @@ if (!function_exists('error')) {
             if (!empty($msg)) $message = lang($msg);
         }
         $resultData = [
-            'code'    => $statusCode,
-            'message' => empty($message)?$msg:$message,
-            'error'   => $err,
-            'time'    => time()
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'error' => $err,
+            'time' => time()
         ];
         return json($resultData);
     }
