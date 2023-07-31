@@ -16,7 +16,7 @@
     "topthink/think-migration": "^3",
     "ext-zip": "*",
     "ext-curl": "*",
-    "ext-redis": "*",
+    "ext-redis": "*"
   },
   "authors": [
     {
