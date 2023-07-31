@@ -1,7 +1,7 @@
 {
   "name": "kaadon/thinkbase",
   "type": "library",
-  "description": "kaadon thinkbase for ThinkPhp6.0",
+  "description": "kaadon thinkbase for ThinkPhp8.x",
   "keywords": [
     "kaadon thinkbase",
     "thinkbase",
@@ -11,12 +11,12 @@
   "license": "Apache-2.0",
   "require": {
     "PHP": ">=8.1",
-    "topthink/framework": "^6",
+    "topthink/framework": "^8",
     "topthink/think-queue": "^3",
     "topthink/think-migration": "^3",
     "ext-zip": "*",
     "ext-curl": "*",
-    "ext-redis": "*"
+    "ext-redis": "*",
   },
   "authors": [
     {
