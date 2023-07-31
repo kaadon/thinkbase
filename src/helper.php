@@ -181,15 +181,33 @@
 		 * 获取配置
 		 *
 		 * @param string                      $group
-		 * @param string                      $name
-		 * @param string|null                 $key
+		 * @param string|null                 $name
 		 * @param array|string|int|float|bool $default
+		 * @param string                      $filePath
 		 *
-		 * @return mixed|string
+		 * @return array|string|int|float|bool
 		 */
-		function get_conf(string $group, string $name, ?string $key = null, array|string|int|float|bool $default = "")
+		function get_conf(string $group, ?string $name = null, array|string|int|float|bool $default = "",string $filePath = "app",): array|string|int|float|bool
 		{
-			return \Yaconf::get("{$group}.{$name}.{$key}") ?? (Env::get("{$group}.{$name}.{$key}") ?: $default);
+			$envPath = "{$group}";
+			if (!is_null($name)) $envPath .= $name;
+			return get_yaconf_config($group,$name,$filePath) ?? (Env::get($envPath) ?: $default);
+		}
+	}
+	
+	if (!function_exists('get_yaconf_config')) {
+		/**
+		 * @param string      $group
+		 * @param string|null $name
+		 * @param string      $fileName
+		 *
+		 * @return array|string|int|float|bool
+		 */
+		function get_yaconf_config(string $group, ?string $name = null, string $fileName = "app"):array|string|int|float|bool
+		{
+			$path = "{$fileName}.{$group}";
+			if (!is_null($name)) $path .= ".{$name}";
+			return \Yaconf::get($path);
 		}
 	}
 	
