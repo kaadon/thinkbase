@@ -219,20 +219,24 @@
 		 */
 		function array_rand_value(array $array, int $num = 1): mixed
 		{
-			$value = null;
-			if ($num == 1) {
-				return $array[array_keys($array)[0]];
-			}
-			if ($num >= count($array) && $num !== 1) {
+			$value       = null;
+			$array_count = count($array);
+			if ($array_count == 1) return $array[array_keys($array)[0]];
+			if ($num >= $array_count && $array_count !== 1) {
 				return $array;
 			}
 			$array_rand = array_rand($array, $num);
-			foreach ($array_rand as $item) {
-				$value[] = $array[$item];
+			if ($num == 1) {
+				$value = $array[$array_rand];
+			}else{
+				foreach ($array_rand as $item) {
+					$value[] = $array[$item];
+				}
 			}
 			return $value;
 		}
 	}
+	
 	/** RETURN **/
 	if (!function_exists('success_zip')) {
 		/**
