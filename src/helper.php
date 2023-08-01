@@ -236,7 +236,53 @@
 			return $value;
 		}
 	}
-	
+	if (!function_exists('object_array')) {
+		/**
+		 * OBJECT TO ARRAY
+		 *
+		 * @param $array
+		 *
+		 * @return array|mixed
+		 */
+		function object_array($array): array
+		{
+			if (is_object($array)) {
+				$array = (array)$array;
+			}
+			if (is_array($array)) {
+				foreach ($array as $key => $value) {
+					$array[$key] = object_array($value);
+				}
+			}
+			return $array;
+		}
+	}
+	if (!function_exists('line_array')) {
+		/**
+		 * @param string $str       待分割字符串
+		 * @param string $separator 分割字符串
+		 * @param bool   $reverse   是否反序
+		 *
+		 * @return array
+		 */
+		function line_array(string $str, string $separator = ',', bool $reverse = false): array
+		{
+			try {
+				$strArray = explode($separator, $str);
+				foreach ($strArray as $key => $item) {
+					if (empty($item)) {
+						unset($strArray[$key]);
+					}
+				}
+				if ($reverse) {
+					$strArray = array_reverse($strArray);
+				}
+			} catch (\Exception $exception) {
+				return [];
+			}
+			return $strArray;
+		}
+	}
 	/** RETURN **/
 	if (!function_exists('success_zip')) {
 		/**
