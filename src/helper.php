@@ -15,6 +15,7 @@
 	use think\paginator\driver\Bootstrap;
 	use think\response\Json;
 	
+	
 	if (!function_exists('redisCacheSet')) {
 		
 		/**
@@ -33,6 +34,7 @@
 				$redis = redisService::instance($select);
 				$redis->set('cache:' . $name, json_encode($value));
 				$redis->expire('cache:' . $name, $expire);
+				$redis->close();
 			} catch (\Exception) {
 				return false;
 			}
@@ -54,6 +56,7 @@
 			$resultData = [];
 			$redis      = redisService::instance($select);
 			$data       = $redis->get('cache:' . $name);
+			$redis->close();
 			if (!empty($data)) {
 				$resultData = json_decode($data, true);
 			}
@@ -73,8 +76,10 @@
 		 */
 		function redisCacheDel(string $name, int $select = 1): Redis|int|bool
 		{
-			return redisService::instance($select)
-			                   ->del("cache:" . $name);
+			$redis = redisService::instance($select);
+			$bool = $redis->del("cache:" . $name);
+			$redis->close();
+			return $bool;
 		}
 	}
 	if (!function_exists('redisCacheUnlink')) {
@@ -90,8 +95,10 @@
 		 */
 		function redisCacheUnlink(string $name, int $select = 1): Redis|int|bool
 		{
-			return redisService::instance($select)
-			                   ->unlink("cache:" . $name);
+			$redis = redisService::instance($select);
+			$bool = $redis->unlink("cache:" . $name);
+			$redis->close();
+			return $bool;
 		}
 	}
 	if (!function_exists('redisCacheDelAll')) {
@@ -114,12 +121,14 @@
 				foreach ($keys as $key) {
 					$redis->del($key);
 				}
+				$redis->close();
 			} catch (\Exception $exception) {
 				throw new \Exception($exception->getMessage());
 			}
 			return true;
 		}
 	}
+	
 	
 	if (!function_exists('paginate')) {
 		/**
