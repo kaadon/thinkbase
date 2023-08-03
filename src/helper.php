@@ -228,7 +228,7 @@
 			$array_rand = array_rand($array, $num);
 			if ($num == 1) {
 				$value = $array[$array_rand];
-			}else{
+			} else {
 				foreach ($array_rand as $item) {
 					$value[] = $array[$item];
 				}
@@ -240,18 +240,22 @@
 		/**
 		 * OBJECT TO ARRAY
 		 *
-		 * @param $array
+		 * @param array|object $array
 		 *
-		 * @return array|mixed
+		 * @return array
 		 */
-		function object_array($array): array
+		function object_array(array|object $array): array
 		{
 			if (is_object($array)) {
 				$array = (array)$array;
 			}
 			if (is_array($array)) {
 				foreach ($array as $key => $value) {
-					$array[$key] = object_array($value);
+					if (is_array($value) || is_object($value)) {
+						$array[$key] = object_array($value);
+					} else {
+						$array[$key] = $value;
+					}
 				}
 			}
 			return $array;
