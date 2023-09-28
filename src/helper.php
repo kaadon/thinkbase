@@ -33,7 +33,6 @@
 				$redis = redisService::instance($select);
 				$redis->set('cache:' . $name, json_encode($value));
 				$redis->expire('cache:' . $name, $expire);
-				$redis->close();
 			} catch (\Exception) {
 				return false;
 			}
@@ -55,7 +54,6 @@
 			$resultData = [];
 			$redis      = redisService::instance($select);
 			$data       = $redis->get('cache:' . $name);
-			$redis->close();
 			if (!empty($data)) {
 				$resultData = json_decode($data, true);
 			}
@@ -77,7 +75,6 @@
 		{
 			$redis = redisService::instance($select);
 			$bool = $redis->del("cache:" . $name);
-			$redis->close();
 			return $bool;
 		}
 	}
@@ -96,7 +93,6 @@
 		{
 			$redis = redisService::instance($select);
 			$bool = $redis->unlink("cache:" . $name);
-			$redis->close();
 			return $bool;
 		}
 	}
@@ -120,7 +116,6 @@
 				foreach ($keys as $key) {
 					$redis->del($key);
 				}
-				$redis->close();
 			} catch (\Exception $exception) {
 				throw new \Exception($exception->getMessage());
 			}
