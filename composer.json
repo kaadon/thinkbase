@@ -32,7 +32,7 @@
     ]
   },
   "require-dev": {
-    "topthink/think-queue": "^3.0",
-    "topthink/think-migration": "^3.1"
+    "topthink/think-migration": "^3.1",
+    "topthink/think-queue": "^3.0"
   }
 }
