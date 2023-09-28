@@ -27,7 +27,7 @@ class redisService
      */
     protected $password = null;
 
-    protected $static_instance = [];
+    protected $static_instance = null;
 
     /**
      * @param string|null $host
@@ -62,10 +62,10 @@ class redisService
      */
     public static function instance(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
     {
-        if (!isset(self::$static_instance[$select])){
-            self::$static_instance[$select] = (new self($select, $host, $port, $password))->redisClient();
+        if (!self::$static_instance){
+            self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
         }
-        return self::$static_instance[$select];
+        return self::$static_instance;
     }
 
     /**
