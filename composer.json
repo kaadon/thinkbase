@@ -10,7 +10,7 @@
   "homepage": "https://developer.kaadon.com/",
   "license": "Apache-2.0",
   "require": {
-    "PHP": ">=8.1",
+    "PHP": ">=7.4",
     "topthink/framework": "^6",
     "ext-zip": "*",
     "ext-curl": "*",
@@ -32,6 +32,7 @@
     ]
   },
   "require-dev": {
-
+    "topthink/think-queue": "^3.0",
+    "topthink/think-migration": "^3.1"
   }
 }
