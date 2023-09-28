@@ -27,7 +27,7 @@ class redisService
      */
     protected $password = null;
 
-    protected $static_instance = null;
+    protected static $static_instance = null;
 
     /**
      * @param string|null $host
