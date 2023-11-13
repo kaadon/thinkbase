@@ -35,7 +35,7 @@ class redisService
      * @param int $select
      * @param string|null $password
      */
-    public function __construct(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null)
+    public function __construct()
     {
         if (is_null($host)) {
             $this->host = Env::get('redis.hostname', "127.0.0.1");
@@ -60,19 +60,18 @@ class redisService
      *
      * @return \Redis
      */
-    public static function instance(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
+    public static function instance(): \Redis
     {
         try {
             if (!self::$static_instance) {
-                self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
+                self::$static_instance = (new self())->redisClient();
             } else {
                 if (!self::$static_instance->ping())
-                    self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
-
+                    self::$static_instance = (new self())->redisClient();
             }
         } catch (\Exception $e) {
             // 断线重连
-            self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
+            self::$static_instance = (new self())->redisClient();
         }
         return self::$static_instance;
     }
