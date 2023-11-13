@@ -62,7 +62,16 @@ class redisService
      */
     public static function instance(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
     {
-        if (!self::$static_instance) {
+        try {
+            if (!self::$static_instance) {
+                self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
+            } else {
+                if (!self::$static_instance->ping())
+                    self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
+
+            }
+        } catch (\Exception $e) {
+            // 断线重连
             self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
         }
         return self::$static_instance;
