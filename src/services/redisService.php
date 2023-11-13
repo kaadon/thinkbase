@@ -31,11 +31,11 @@ class redisService
 
     /**
      * @param string|null $host
-     * @param int|null    $port
-     * @param int         $select
+     * @param int|null $port
+     * @param int $select
      * @param string|null $password
      */
-    public function __construct(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null)
+    public function __construct(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null)
     {
         if (is_null($host)) {
             $this->host = Env::get('redis.hostname', "127.0.0.1");
@@ -53,16 +53,16 @@ class redisService
 
 
     /**
-     * @param int         $select
+     * @param int $select
      * @param string|null $host
-     * @param int|null    $port
+     * @param int|null $port
      * @param string|null $password
      *
      * @return \Redis
      */
-    public static function instance(int $select = 0, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
+    public static function instance(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
     {
-        if (!self::$static_instance){
+        if (!self::$static_instance) {
             self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
         }
         return self::$static_instance;
@@ -80,5 +80,10 @@ class redisService
         $redis->auth($this->password);
         $redis->select($this->select);
         return $redis;
+    }
+
+    protected function getSelect()
+    {
+        return $this->select;
     }
 }

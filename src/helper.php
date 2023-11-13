@@ -16,18 +16,18 @@
 	use think\response\Json;
 	
 	if (!function_exists('redisCacheSet')) {
-		
-		/**
-		 * 设置缓存
-		 *
-		 * @param string $name
-		 * @param        $value
-		 * @param int    $expire
-		 * @param int    $select
-		 *
-		 * @return bool
-		 */
-		function redisCacheSet(string $name, $value, int $expire = 3600, int $select = 1): bool
+
+        /**
+         * 设置缓存
+         *
+         * @param string $name
+         * @param        $value
+         * @param int $expire
+         * @param int|null $select
+         *
+         * @return bool
+         */
+		function redisCacheSet(string $name, $value, int $expire = 3600, int $select = null): bool
 		{
 			try {
 				$redis = redisService::instance($select);
@@ -40,16 +40,16 @@
 		}
 	}
 	if (!function_exists('redisCacheGet')) {
-		/**
-		 * 获取缓存
-		 *
-		 * @param string $name   //key
-		 * @param int    $select //redis库
-		 *
-		 * @return array|bool|int
-		 * @throws RedisException
-		 */
-		function redisCacheGet(string $name, int $select = 1): array|bool|int
+        /**
+         * 获取缓存
+         *
+         * @param string $name //key
+         * @param int|null $select //redis库
+         *
+         * @return array|bool|int
+         * @throws RedisException
+         */
+		function redisCacheGet(string $name, int $select = null): array|bool|int
 		{
 			$resultData = [];
 			$redis      = redisService::instance($select);
@@ -61,17 +61,17 @@
 		}
 	}
 	if (!function_exists('redisCacheDel')) {
-		
-		/**
-		 * 删除缓存
-		 *
-		 * @param string $name
-		 * @param int    $select
-		 *
-		 * @return Redis|int|bool
-		 * @throws RedisException
-		 */
-		function redisCacheDel(string $name, int $select = 1): Redis|int|bool
+
+        /**
+         * 删除缓存
+         *
+         * @param string $name
+         * @param int|null $select
+         *
+         * @return Redis|int|bool
+         * @throws RedisException
+         */
+		function redisCacheDel(string $name, int $select = null): Redis|int|bool
 		{
 			$redis = redisService::instance($select);
 			$bool = $redis->del("cache:" . $name);
@@ -79,17 +79,17 @@
 		}
 	}
 	if (!function_exists('redisCacheUnlink')) {
-		
-		/**
-		 * 删除缓存
-		 *
-		 * @param string $name
-		 * @param int    $select
-		 *
-		 * @return Redis|int|bool
-		 * @throws RedisException
-		 */
-		function redisCacheUnlink(string $name, int $select = 1): Redis|int|bool
+
+        /**
+         * 删除缓存
+         *
+         * @param string $name
+         * @param int|null $select
+         *
+         * @return Redis|int|bool
+         * @throws RedisException
+         */
+		function redisCacheUnlink(string $name, int $select = null): Redis|int|bool
 		{
 			$redis = redisService::instance($select);
 			$bool = $redis->unlink("cache:" . $name);
@@ -97,17 +97,17 @@
 		}
 	}
 	if (!function_exists('redisCacheDelAll')) {
-		
-		/**
-		 * 批量删除缓存
-		 *
-		 * @param string $name
-		 * @param int    $select
-		 *
-		 * @return Redis|int|bool
-		 * @throws RedisException
-		 */
-		function redisCacheDelAll(string $name, int $select = 1): Redis|int|bool
+
+        /**
+         * 批量删除缓存
+         *
+         * @param string $name
+         * @param int|null $select
+         *
+         * @return Redis|int|bool
+         * @throws Exception
+         */
+		function redisCacheDelAll(string $name, int $select = null): Redis|int|bool
 		{
 			try {
 				//逻辑代码
