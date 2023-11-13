@@ -79,6 +79,7 @@ class redisService
         $redis->connect($this->host, $this->port);
         $redis->auth($this->password);
         $redis->select($this->select);
+        $redis->setOption(\Redis::OPT_PREFIX,Env::get("redis.prefix","cache:"));
         return $redis;
     }
 
