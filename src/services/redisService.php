@@ -35,7 +35,7 @@ class redisService
      * @param int $select
      * @param string|null $password
      */
-    public function __construct()
+    public function __construct(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null)
     {
         if (is_null($host)) {
             $this->host = Env::get('redis.hostname', "127.0.0.1");
