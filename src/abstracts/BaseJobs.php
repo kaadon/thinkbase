@@ -67,7 +67,7 @@ abstract class BaseJobs implements JobsInterface
         ) {
             $task = $this->JobData['task'];
             try {
-                echo "\n 👉🏻 任务数据: \n" . json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE) . " \n";
+                echo "\n 👉🏻 任务数据: \n" . preg_replace('/s/','',json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE)) . " \n";
                 echo "\n 👉🏻 业务执行数据: \n";
                 $bool = $this->jobChanel::$task($this->JobData['data']);
                 echo "\n 👉🏻 业务执行结果: \n";
