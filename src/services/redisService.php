@@ -60,10 +60,18 @@ class redisService
      *
      * @return \Redis
      */
-    public static function instance(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null): \Redis
+    public static function instance(): \Redis
     {
-        if (!self::$static_instance) {
-            self::$static_instance = (new self($select, $host, $port, $password))->redisClient();
+        try {
+            if (!self::$static_instance) {
+                self::$static_instance = (new self())->redisClient();
+            } else {
+                if (!self::$static_instance->ping())
+                    self::$static_instance = (new self())->redisClient();
+            }
+        } catch (\Exception $e) {
+            // 断线重连
+            self::$static_instance = (new self())->redisClient();
         }
         return self::$static_instance;
     }
