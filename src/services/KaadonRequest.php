@@ -20,7 +20,7 @@ namespace Kaadon\ThinkBase\services;
 /**
  *
  */
-class HttpRequest
+class KaadonRequest
 {
     /**
      * @var mixed|string
