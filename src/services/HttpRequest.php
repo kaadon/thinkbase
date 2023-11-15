@@ -34,10 +34,10 @@ class HttpRequest
     // 构造函数，可以设置默认的User-Agent和IP地址
 
     /**
-     * @param $userAgent
-     * @param $ipAddress
+     * @param string $userAgent
+     * @param string $ipAddress
      */
-    public function __construct($userAgent = '', $ipAddress = '')
+    public function __construct(string $userAgent = '', string $ipAddress = '')
     {
         $this->userAgent = $userAgent;
         $this->ipAddress = $ipAddress;
@@ -81,10 +81,10 @@ class HttpRequest
     /**
      * @param $url
      * @param $data
-     * @param $headers
+     * @param array $headers
      * @return bool|string|null
      */
-    public function sendPost($url, $data, $headers = []): bool|string|null
+    public function sendPost($url, $data, array $headers = []): bool|string|null
     {
         return $this->sendRequest($url, 'POST', $data, $headers);
     }
@@ -94,12 +94,23 @@ class HttpRequest
     /**
      * @param $url
      * @param $data
-     * @param $headers
+     * @param array $headers
      * @return bool|string|null
      */
-    public function sendPut($url, $data, $headers = []): bool|string|null
+    public function sendPut($url, $data, array $headers = []): bool|string|null
     {
         return $this->sendRequest($url, 'PUT', $data, $headers);
+    }
+
+    /**
+     * @param $url
+     * @param array $data
+     * @param array $headers
+     * @return bool|string|null
+     */
+    public function sendJson($url, array $data, array $headers = []): bool|string|null
+    {
+        return $this->sendRequest($url, 'JSON', $data, $headers);
     }
 
     // 发送DELETE请求的方法
@@ -120,10 +131,10 @@ class HttpRequest
      * @param $url
      * @param $method
      * @param $data
-     * @param $headers
+     * @param array $headers
      * @return bool|string|null
      */
-    private function sendRequest($url, $method, $data = null, $headers = []): bool|string|null
+    private function sendRequest($url, $method, $data = null, array $headers = []): bool|string|null
     {
         $ch = curl_init();
 
@@ -160,6 +171,28 @@ class HttpRequest
                 break;
             case 'PUT':
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                break;
+            case 'JSON':
+                if (!empty($data) && is_array($data)) $data = json_encode($data);
+                if (!is_array($headers)) $headers = [];
+                $check = false;
+                if (!empty($headers)) {
+                    foreach ($headers as $value) {
+                        if (false !== stripos($value, 'application/json')) {
+                            $check = true;
+                            break;
+                        }
+                    }
+                }
+                if (!$check) {
+                    if (!empty($data)) {
+                        array_unshift($headers, 'Content-Length: ' . strlen($data));
+                    }
+                    array_unshift($headers, 'Accept: application/json');
+                    array_unshift($headers, 'Content-Type: application/json; charset=utf-8');
+                }
+                curl_setopt($ch, CURLOPT_POST, true);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
                 break;
             case 'DELETE':
