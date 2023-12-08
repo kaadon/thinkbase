@@ -65,8 +65,8 @@ abstract class BaseJobs implements JobsInterface
             && array_key_exists('data', $this->JobData) // 数据是否存在
             && is_array($this->JobData['data'])//数据必须是数组
         ) {
-            $task = $this->JobData['task'];
             try {
+                $task = $this->JobData['task'];
                 echo "\n 👉🏻 任务数据: \n" . preg_replace('/s/','',json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE)) . " \n";
                 echo "\n 👉🏻 业务执行数据: \n";
                 $bool = $this->jobChanel::$task($this->JobData['data']);
