@@ -2,6 +2,7 @@
 
 namespace Kaadon\ThinkBase\utils;
 
+
 use think\facade\Event;
 use think\facade\Filesystem;
 
@@ -32,27 +33,27 @@ class Upload
      */
     public function upload($file, array $upload_config = []): array
     {
-        $name = $file->getOriginalName();
-        $format = strrchr($name, '.');
-        $filePath = $file->getRealPath();
-        $fileName = date("Y") . date("m") . date("d") . uniqid() . $format;
-        $upload_type = $upload_config['upload_type'] ?? 'local';
-        $res = null;
-        if ($upload_type == "local") {
-            $res = $this->localUpload($file);
-        }
-        $save_file = $upload_config['save_file'];
+        $upload_type = $upload_config['uploadType'] ?? 'local';
+        $res = match ($upload_type) {
+            "local" => $this->localUpload($file, $upload_config['catePath']),
+            default => throw new \Exception("上传类型错误"),
+        };
+        $save_file = $upload_config['saveFile'] ?? false;
         if ($res['path'] && $save_file) {
-            Event::listen($upload_config['event'] ?? "uploadFile", $upload_config['listener']);
-            Event::trigger($upload_config['event'] ?? "uploadFile", [
-                'upload_type' => $upload_type,
-                'original_name' => $file->getOriginalName(),
-                'mime_type' => $file->getOriginalMime(),
-                'file_ext' => strtolower($file->getOriginalExtension()),
-                'url' => "{$res['domain']}{$res['path']}",
-                'sha1' => $file->hash(),
-                'file_size' => $file->getSize(),
-            ]);
+            $listener = $upload_config['listener'] ?? null;
+            $event = $upload_config['event'] ?? null;
+            if ($event && $listener) {
+                Event::listen($event, $listener);
+                Event::trigger($event, [
+                    'upload_type' => $upload_type,
+                    'original_name' => $file->getOriginalName(),
+                    'mime_type' => $file->getOriginalMime(),
+                    'file_ext' => strtolower($file->getOriginalExtension()),
+                    'url' => "{$res['domain']}{$res['path']}",
+                    'sha1' => $file->hash(),
+                    'file_size' => $file->getSize(),
+                ]);
+            }
         }
         $res['url'] = "{$res['domain']}{$res['path']}";
         return $res;
