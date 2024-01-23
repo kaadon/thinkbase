@@ -6,8 +6,9 @@ namespace Kaadon\ThinkBase\utils;
 use think\facade\Event;
 use think\facade\Filesystem;
 
+
 /**
- * 本地文件上传文件
+ *本地文件上传文件
  */
 class Upload
 {
