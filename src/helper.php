@@ -40,16 +40,15 @@
 		}
 	}
 	if (!function_exists('redisCacheGet')) {
+
         /**
-         * 获取缓存
-         *
-         * @param string $name //key
-         * @param int|null $select //redis库
-         *
-         * @return array|bool|int
+         *  获取缓存
+         * @param string $name
+         * @param int|null $select
+         * @return mixed
          * @throws RedisException
          */
-		function redisCacheGet(string $name, int $select = null): array|bool|int
+        function redisCacheGet(string $name, int $select = null):mixed
 		{
 			$resultData = [];
 			$redis      = redisService::instance($select);
