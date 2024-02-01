@@ -36,15 +36,8 @@ class BaseModel extends Model
      * @param Model $model
      * @return void
      */
-    private static function clearCache(Model $model): void
-    {
-        try {
-            //逻辑代码
-            redisCacheDel('webMenu:all');
-        } catch (Exception $exception) {
-            Log::info($exception->getMessage());
-        }
-    }
+    private static function clearCache(Model $model){}
+
 
     /**
      * 更新后事件
