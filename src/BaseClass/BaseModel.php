@@ -36,7 +36,7 @@ class BaseModel extends Model
      * @param Model $model
      * @return void
      */
-    private static function clearCache(Model $model){}
+    private static function clearCache(Model $model): void{}
 
 
     /**
