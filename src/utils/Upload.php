@@ -3,6 +3,7 @@
 namespace Kaadon\ThinkBase\utils;
 
 
+use Exception;
 use think\facade\Event;
 use think\facade\Filesystem;
 
@@ -15,14 +16,15 @@ class Upload
     /**
      * @var array|mixed
      */
-    public $config = [];
+    public mixed $config = [];
+
 
     /**
-     *
+     * @param array $upload_config
      */
-    public function __construct()
+    public function __construct(array $upload_config = [])
     {
-        $this->config = config('upload');
+        $this->config = !empty($upload_config) ? $upload_config : config('upload');
     }
 
 
@@ -30,19 +32,21 @@ class Upload
      * @param $file
      * @param array $upload_config
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function upload($file, array $upload_config = []): array
     {
-        $upload_type = $upload_config['uploadType'] ?? 'local';
+        $this->config = array_merge($this->config, $upload_config);
+        $upload_type = $this->config['uploadType'] ?? 'local';
+        $catePath = $this->config['catePath'] ?? 'system';
         $res = match ($upload_type) {
-            "local" => $this->localUpload($file, $upload_config['catePath']),
-            default => throw new \Exception("上传类型错误"),
+            "local" => $this->localUpload($file, $catePath),
+            default => throw new Exception("上传类型错误"),
         };
-        $save_file = $upload_config['saveFile'] ?? false;
+        $save_file = $this->config['saveFile'] ?? false;
         if ($res['path'] && $save_file) {
-            $listener = $upload_config['listener'] ?? null;
-            $event = $upload_config['event'] ?? null;
+            $listener = $this->config['listener'] ?? null;
+            $event = $this->config['event'] ?? null;
             if ($event && $listener) {
                 Event::listen($event, $listener);
                 Event::trigger($event, [
@@ -64,7 +68,7 @@ class Upload
      * @param $file
      * @param string $filename
      * @return array
-     * @throws \Exception
+     * @throws Exception
      */
     public function localUpload($file, string $filename = "system"): array
     {
@@ -75,8 +79,8 @@ class Upload
                 'domain' => null,
                 'path' => "/storage/" . str_replace(DIRECTORY_SEPARATOR, '/', $savename)
             ];
-        } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+        } catch (Exception $exception) {
+            throw new Exception($exception->getMessage());
         }
     }
 }
