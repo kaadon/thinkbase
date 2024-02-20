@@ -76,7 +76,7 @@ class Upload
             //逻辑代码
             $savename = Filesystem::disk('public')->putFile($filename, $file);
             return [
-                'domain' => null,
+                'domain' => $this->config['domain']??'',
                 'path' => "/storage/" . str_replace(DIRECTORY_SEPARATOR, '/', $savename)
             ];
         } catch (Exception $exception) {
