@@ -17,7 +17,14 @@
 
 namespace Kaadon\ThinkBase\interfaces;
 
+/**
+ * @package Kaadon\ThinkBase\interfaces
+ */
 interface FileListenerInterface
 {
+    /**
+     * @param array $params
+     * @return void
+     */
     public function handle(array $params): void;
 }
