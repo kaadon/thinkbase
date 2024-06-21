@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Kaadon\ThinkBase\abstracts;
 
 use Kaadon\ThinkBase\interfaces\JobsInterface;
+use ReflectionMethod;
 use think\facade\Log;
 use think\facade\Queue;
 use think\queue\Job;
@@ -69,7 +70,12 @@ abstract class BaseJobs implements JobsInterface
                 $task = $this->JobData['task'];
                 echo "\n 👉🏻 任务数据: \n" . preg_replace('/s/','',json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE)) . " \n";
                 echo "\n 👉🏻 业务执行数据: \n";
-                $bool = $this->jobChanel::$task($this->JobData['data']);
+                $reflection = new ReflectionMethod($this->jobChanel, $task);
+                if ($reflection->isStatic()) {
+                    $bool = $this->jobChanel::$task($this->JobData['data']);
+                }else{
+                    $bool = $this->jobChanel->$task($this->JobData['data']);
+                }
                 echo "\n 👉🏻 业务执行结果: \n";
             } catch (\Exception $exception) {
                 $this->error = $exception->getMessage();
