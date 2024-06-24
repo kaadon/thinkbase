@@ -67,9 +67,7 @@ class BaseModel extends Model
     {
         $selfClass                    = (new self());
         $data[$selfClass->createTime] = $data[$selfClass->updateTime] = time();
-        $model = parent::create($data, $allowField, $replace, $suffix);
-        self::clearCache($model);
-        return $model;
+        return parent::create($data, $allowField, $replace, $suffix);
     }
 
     /**
