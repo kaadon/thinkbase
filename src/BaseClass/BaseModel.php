@@ -24,68 +24,11 @@ class BaseModel extends Model
      *
      */
     protected $createTime = 'create_time';
-
     /**
      * 更新时间
      *
      */
     protected $updateTime = 'update_time';
-
-    /**
-     * 清除缓存
-     * @param Model $model
-     * @return void
-     */
-    private static function clearCache(Model $model): void{}
-
-
-    /**
-     * 更新后事件
-     * @param Model $model
-     * @return void
-     * @throws Exception
-     */
-    public static function onAfterUpdate(Model $model): void
-    {
-        try {
-            //逻辑代码
-            self::clearCache($model);
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
-        }
-    }
-
-    /**
-     * 增加后事件
-     * @param Model $model
-     * @return void
-     * @throws Exception
-     */
-    public static function onAfterInsert(Model $model): void
-    {
-        try {
-            //逻辑代码
-            self::clearCache($model);
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
-        }
-    }
-
-    /**
-     * 删除后事件
-     * @param Model $model
-     * @return void
-     * @throws Exception
-     */
-    public static function onAfterDelete(Model $model): void
-    {
-        try {
-            //逻辑代码
-            self::clearCache($model);
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
-        }
-    }
 
     /**
      * @param array $data
