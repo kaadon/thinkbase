@@ -124,7 +124,9 @@ class BaseModel extends Model
     {
         $selfClass                    = (new self());
         $data[$selfClass->createTime] = $data[$selfClass->updateTime] = time();
-        return parent::create($data, $allowField, $replace, $suffix);
+        $model = parent::create($data, $allowField, $replace, $suffix);
+        self::clearCache($model);
+        return $model;
     }
 
     /**
