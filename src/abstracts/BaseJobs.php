@@ -9,16 +9,23 @@ use think\facade\Log;
 use think\facade\Queue;
 use think\queue\Job;
 
+/**
+ * 队列基类
+ */
 abstract class BaseJobs implements JobsInterface
 {
     /**
      * @var string
      */
-    public $error = '';
+    public string $down = "\n 👇👇👇 \n 👉👉👉";
     /**
-     * @var
+     * @var string
      */
-    public $JobData;
+    public string $error = '';
+    /**
+     * @var array
+     */
+    public array $JobData;
     /**
      * @var
      */
@@ -31,24 +38,23 @@ abstract class BaseJobs implements JobsInterface
      */
     public function fire(Job $job, array $data): void
     {
-        $down = "👇👇👇";
-        // TODO: Implement fire() method.
         $this->JobData   = $data;
         $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
         if ($job->attempts() > 3) {
             $job->delete();
             Log::record($job->getRawBody(), 'queue');
-            echo  "\n执行任务<" . $job->getJobId() .">". $down . " \n❌ 错误次数超过3次,删除任务" . "\n";
+            echo  "{$this->down} 执行超过 <{$job->getJobId()}> 次错误 ❌ ,删除任务! \n";
+            return;
         }
         if ($this->doJOb()) {
             $job->delete();
-            echo "\n执行<" . $job->getJobId() . ">任务". $down . "\n✅ 第" . $job->attempts() . "次成功,删除任务! \n";
+            echo "{$this->down} 执行第 <{$job->getJobId()}> 次任务: 成功 ✅ !,删除任务! \n";
         } else {
             if ($job->attempts() > 2) {
                 $job->delete();
-                echo "\n执行" . $job->attempts() . "次 <" . $job->getJobId() . ">失败". $down . " \n❌ 错误为::<". $this->error . ">,删除任务!" . "\n";
+                echo "{$this->down} 执行第 <{$job->attempts()}> 次失败 ❌ ,{$this->down} 错误为::<". $this->error . ">,删除任务! \n";
             }else{
-                echo "\n执行<" . $job->getJobId() . ">失败". $down . "\n 已执行" . $job->attempts() . "次". $down . " \n❌ 错误为:". $this->error . ",\n";
+                echo "{$this->down} 执行第 <{$job->attempts()}> 次失败 ❌ ,错误为::{$this->error} \n";
             }
         }
     }
@@ -66,21 +72,20 @@ abstract class BaseJobs implements JobsInterface
             && array_key_exists('data', $this->JobData) // 数据是否存在
             && is_array($this->JobData['data'])//数据必须是数组
         ) {
+            echo "{$this->down} 业务执行数据: \n";
             try {
                 $task = $this->JobData['task'];
-                echo "\n 👉🏻 任务数据: \n" . preg_replace('/s/','',json_encode($this->JobData['data'],JSON_UNESCAPED_UNICODE)) . " \n";
-                echo "\n 👉🏻 业务执行数据: \n";
                 $reflection = new ReflectionMethod($this->jobChanel, $task);
                 if ($reflection->isStatic()) {
                     $bool = $this->jobChanel::$task($this->JobData['data']);
                 }else{
-                    $bool = $this->jobChanel->$task($this->JobData['data']);
+                    $bool = (new $this->jobChanel)->$task($this->JobData['data']);
                 }
-                echo "\n 👉🏻 业务执行结果: \n";
             } catch (\Exception $exception) {
                 $this->error = $exception->getMessage();
-                return false;
+                $bool = false;
             }
+            echo "{$this->down} 业务执行结束\n";
             return $bool;
         } else {
             $this->error = "请检查参数!";
