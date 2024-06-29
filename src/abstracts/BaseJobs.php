@@ -43,18 +43,18 @@ abstract class BaseJobs implements JobsInterface
         if ($job->attempts() > 3) {
             $job->delete();
             Log::record($job->getRawBody(), 'queue');
-            echo  "{$this->down} 执行超过 <{$job->getJobId()}> 次错误 ❌ ,删除任务! \n";
+            echo  "{$this->down} 执行[{$job->getJobId()}]超过 <{$job->attempts()}> 次错误 ❌ ,删除任务! \n";
             return;
         }
         if ($this->doJOb()) {
             $job->delete();
-            echo "{$this->down} 执行第 <{$job->getJobId()}> 次任务: 成功 ✅ !,删除任务! \n";
+            echo "{$this->down} 执行[{$job->getJobId()}]第 <{$job->attempts()}> 次任务: 成功 ✅ !,删除任务! \n";
         } else {
             if ($job->attempts() > 2) {
                 $job->delete();
-                echo "{$this->down} 执行第 <{$job->attempts()}> 次失败 ❌ ,{$this->down} 错误为::<". $this->error . ">,删除任务! \n";
+                echo "{$this->down} 执行[{$job->getJobId()}]第 <{$job->attempts()}> 次失败 ❌ ,错误为::<". $this->error . ">,删除任务! \n";
             }else{
-                echo "{$this->down} 执行第 <{$job->attempts()}> 次失败 ❌ ,错误为::{$this->error} \n";
+                echo "{$this->down} 执行[{$job->getJobId()}]第 <{$job->attempts()}> 次失败 ❌ ,错误为::{$this->error} \n";
             }
         }
     }
@@ -65,30 +65,29 @@ abstract class BaseJobs implements JobsInterface
      */
     public function doJOb(): bool
     {
-        // TODO: Implement doJOb() method.
         if (
             array_key_exists('task', $this->JobData) //判断任务是否存在
             && method_exists($this->jobChanel, $this->JobData['task']) //方法是否存在
             && array_key_exists('data', $this->JobData) // 数据是否存在
             && is_array($this->JobData['data'])//数据必须是数组
         ) {
-            echo "{$this->down} 业务执行数据: \n";
+            echo "♻️♻️♻️ 业务执行数据: \n";
             try {
                 $task = $this->JobData['task'];
-                $reflection = new ReflectionMethod($this->jobChanel, $task);
+                $reflection = new ReflectionMethod($this, $task);
                 if ($reflection->isStatic()) {
-                    $bool = $this->jobChanel::$task($this->JobData['data']);
+                    $bool = $this::$task($this->JobData['data']);
                 }else{
-                    $bool = (new $this->jobChanel)->$task($this->JobData['data']);
+                    $bool = $this->$task($this->JobData['data']);
                 }
             } catch (\Exception $exception) {
                 $this->error = $exception->getMessage();
                 $bool = false;
             }
-            echo "{$this->down} 业务执行结束\n";
+            echo "♻️♻️♻️ 业务执行结束\n";
             return $bool;
         } else {
-            $this->error = "请检查参数!";
+            $this->error = "⁉️请检查参数!";
             return false;
         }
 
