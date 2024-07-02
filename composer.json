@@ -15,7 +15,8 @@
     "ext-curl": "*",
     "ext-redis": "*",
     "ext-yaconf": "*",
-    "ext-zlib": "*"
+    "ext-zlib": "*",
+    "kaadon/helper": "^1.0"
   },
   "authors": [
     {

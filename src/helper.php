@@ -15,6 +15,7 @@ use think\Model;
 use think\paginator\driver\Bootstrap;
 use think\response\Json;
 
+/** redis 缓存 **/
 if (!function_exists('redisCacheSet')) {
 
     /**
@@ -23,14 +24,12 @@ if (!function_exists('redisCacheSet')) {
      * @param string $name
      * @param        $value
      * @param int $expire
-     * @param int|null $select
-     *
      * @return bool
      */
-    function redisCacheSet(string $name, $value, int $expire = 3600, ?int $select = null): bool
+    function redisCacheSet(string $name, $value, int $expire = 3600): bool
     {
         try {
-            $redis = redisService::instance($select);
+            $redis = redisService::instance();
             $redis->set('cache:' . $name, json_encode($value));
             $redis->expire('cache:' . $name, $expire);
         } catch (\Exception) {
@@ -44,19 +43,23 @@ if (!function_exists('redisCacheGet')) {
     /**
      *  获取缓存
      * @param string $name
-     * @param int|null $select
      * @return mixed
-     * @throws RedisException
+     * @throws Exception
      */
-    function redisCacheGet(string $name, ?int $select = null): mixed
+    function redisCacheGet(string $name): mixed
     {
-        $resultData = [];
-        $redis = redisService::instance($select);
-        $data = $redis->get('cache:' . $name);
-        if (!empty($data)) {
-            $resultData = json_decode($data, true);
+        try {
+            //逻辑代码
+            $resultData = [];
+            $redis = redisService::instance();
+            $data = $redis->get('cache:' . $name);
+            if (!empty($data)) {
+                $resultData = json_decode($data, true);
+            }
+            return $resultData;
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
         }
-        return $resultData;
     }
 }
 if (!function_exists('redisCacheDel')) {
@@ -65,16 +68,18 @@ if (!function_exists('redisCacheDel')) {
      * 删除缓存
      *
      * @param string $name
-     * @param int|null $select
-     *
      * @return Redis|int|bool
-     * @throws RedisException
+     * @throws Exception
      */
-    function redisCacheDel(string $name, ?int $select = null): Redis|int|bool
+    function redisCacheDel(string $name): Redis|int|bool
     {
-        $redis = redisService::instance($select);
-        $bool = $redis->del("cache:" . $name);
-        return $bool;
+        try {
+            //逻辑代码
+            $redis = redisService::instance();
+            return $redis->del("cache:" . $name);
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 }
 if (!function_exists('redisCacheUnlink')) {
@@ -83,16 +88,18 @@ if (!function_exists('redisCacheUnlink')) {
      * 删除缓存
      *
      * @param string $name
-     * @param int|null $select
-     *
      * @return Redis|int|bool
-     * @throws RedisException
+     * @throws Exception
      */
-    function redisCacheUnlink(string $name, ?int $select = null): Redis|int|bool
+    function redisCacheUnlink(string $name): Redis|int|bool
     {
-        $redis = redisService::instance($select);
-        $bool = $redis->unlink("cache:" . $name);
-        return $bool;
+        try {
+            //逻辑代码
+            $redis = redisService::instance();
+            return $redis->unlink("cache:" . $name);
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 }
 if (!function_exists('redisCacheDelAll')) {
@@ -106,11 +113,11 @@ if (!function_exists('redisCacheDelAll')) {
      * @return Redis|int|bool
      * @throws Exception
      */
-    function redisCacheDelAll(string $name, ?int $select = null): Redis|int|bool
+    function redisCacheDelAll(string $name, ?int $select): Redis|int|bool
     {
         try {
             //逻辑代码
-            $redis = redisService::instance($select);
+            $redis = redisService::instance();
             $keys = $redis->keys("cache:" . $name);
             foreach ($keys as $key) {
                 $redis->del($key);
@@ -122,6 +129,7 @@ if (!function_exists('redisCacheDelAll')) {
     }
 }
 
+/** 分页 **/
 if (!function_exists('paginate')) {
     /**
      * 数据分页处理
@@ -152,6 +160,7 @@ if (!function_exists('paginate')) {
     }
 }
 
+/** 环境判断 **/
 if (!function_exists('is_debug')) {
     /**
      * 是否为DEBUG
@@ -185,6 +194,8 @@ if (!function_exists('is_demo')) {
         return Env::get("app_demo") ?? false;
     }
 }
+
+/** yaconf **/
 if (!function_exists("get_conf")) {
     /**
      * 获取配置
@@ -204,100 +215,7 @@ if (!function_exists("get_conf")) {
     }
 }
 
-if (!function_exists('get_yaconf_config')) {
-    /**
-     * @param string $group
-     * @param string|null $name
-     * @param string $fileName
-     *
-     * @return array|string|int|float|bool
-     */
-    function get_yaconf_config(string $group, ?string $name = null, string $fileName = "app"): array|string|int|float|bool
-    {
-        $path = "{$fileName}.{$group}";
-        if (!is_null($name)) $path .= ".{$name}";
-        return \Yaconf::get($path);
-    }
-}
-if (!function_exists('array_rand_value')) {
-    /**
-     * 数组随机取值
-     *
-     * @param array $array
-     * @param int $num
-     *
-     * @return mixed
-     */
-    function array_rand_value(array $array, int $num = 1): mixed
-    {
-        if ($num == 0) return null;
-        $array_count = count($array);
-        if ($array_count == 1) return $array[array_keys($array)[0]];
-        if ($num >= $array_count) {
-            return $array;
-        }
-        $value = null;
-        $array_rand = array_rand($array, $num);
-        if ($num == 1) {
-            $value = $array[$array_rand];
-        } else {
-            foreach ($array_rand as $item) {
-                $value[] = $array[$item];
-            }
-        }
-        return $value;
-    }
-}
-if (!function_exists('object_array')) {
-    /**
-     * OBJECT TO ARRAY
-     *
-     * @param array|object $array
-     *
-     * @return array
-     */
-    function object_array(array|object $array): array
-    {
-        if (is_object($array)) {
-            $array = (array)$array;
-        } elseif (is_array($array)) {
-            foreach ($array as $key => $value) {
-                if (is_array($value) || is_object($value)) {
-                    $array[$key] = object_array($value);
-                } else {
-                    $array[$key] = $value;
-                }
-            }
-        }
-        return $array;
-    }
-}
-if (!function_exists('line_array')) {
-    /**
-     * @param string $str 待分割字符串
-     * @param string $separator 分割字符串
-     * @param bool $reverse 是否反序
-     *
-     * @return array
-     */
-    function line_array(string $str, string $separator = ',', bool $reverse = false): array
-    {
-        try {
-            $strArray = explode($separator, $str);
-            foreach ($strArray as $key => $item) {
-                if (empty($item)) {
-                    unset($strArray[$key]);
-                }
-            }
-            if ($reverse) {
-                $strArray = array_reverse($strArray);
-            }
-        } catch (\Exception $exception) {
-            return [];
-        }
-        return $strArray;
-    }
-}
+
 /** RETURN **/
 if (!function_exists('success_zip')) {
     /**
