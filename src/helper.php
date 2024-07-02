@@ -230,17 +230,7 @@ if (!function_exists('success_zip')) {
     function success_zip(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
     {
         if ($data instanceof Model) $data = $data->toArray();
-        $message = '';
-        if (str_contains($msg, "::")) {
-            $msgArr = explode('::', $msg);
-            foreach ($msgArr as $item) {
-                if (!empty($item)) {
-                    $message .= lang($item);
-                }
-            }
-        } else {
-            if (!empty($msg)) $message = lang($msg);
-        }
+        $message = getMessageStr($msg);
         $data = base64_encode(string: gzcompress(json_encode($data)));
         $resultData = [
             'code' => $statusCode,
@@ -263,17 +253,7 @@ if (!function_exists('success')) {
     function success(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
     {
         if ($data instanceof Model) $data = $data->toArray();
-        $message = '';
-        if (str_contains($msg, "::")) {
-            $msgArr = explode('::', $msg);
-            foreach ($msgArr as $item) {
-                if (!empty($item)) {
-                    $message .= lang($item);
-                }
-            }
-        } else {
-            if (!empty($msg)) $message = lang($msg);
-        }
+        $message = getMessageStr($msg);
         $resultData = [
             'code' => $statusCode,
             'message' => empty($message) ? $msg : $message,
