@@ -13,7 +13,9 @@
     "PHP": ">=8.1",
     "ext-zip": "*",
     "ext-curl": "*",
-    "ext-redis": "*"
+    "ext-redis": "*",
+    "ext-yaconf": "*",
+    "ext-zlib": "*"
   },
   "authors": [
     {

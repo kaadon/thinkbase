@@ -1,422 +1,435 @@
 <?php
-	/**
-	 * Created by   : PhpStorm
-	 * Project      : KaadonThinkBase
-	 * Web          : https://developer.kaadon.com
-	 * User         : kaaddon.com
-	 * Date         : 2023/7/1 4:30 PM
-	 **/
-	
-	/** REDIS **/
-	
-	use Kaadon\ThinkBase\services\redisService;
-	use think\facade\Env;
-	use think\Model;
-	use think\paginator\driver\Bootstrap;
-	use think\response\Json;
-	
-	if (!function_exists('redisCacheSet')) {
+/**
+ * Created by   : PhpStorm
+ * Project      : KaadonThinkBase
+ * Web          : https://developer.kaadon.com
+ * User         : kaaddon.com
+ * Date         : 2023/7/1 4:30 PM
+ **/
 
-        /**
-         * 设置缓存
-         *
-         * @param string $name
-         * @param        $value
-         * @param int $expire
-         * @param int|null $select
-         *
-         * @return bool
-         */
-		function redisCacheSet(string $name, $value, int $expire = 3600, int $select = null): bool
-		{
-			try {
-				$redis = redisService::instance($select);
-				$redis->set('cache:' . $name, json_encode($value));
-				$redis->expire('cache:' . $name, $expire);
-			} catch (\Exception) {
-				return false;
-			}
-			return true;
-		}
-	}
-	if (!function_exists('redisCacheGet')) {
+/** REDIS **/
 
-        /**
-         *  获取缓存
-         * @param string $name
-         * @param int|null $select
-         * @return mixed
-         * @throws RedisException
-         */
-        function redisCacheGet(string $name, int $select = null):mixed
-		{
-			$resultData = [];
-			$redis      = redisService::instance($select);
-			$data       = $redis->get('cache:' . $name);
-			if (!empty($data)) {
-				$resultData = json_decode($data, true);
-			}
-			return $resultData;
-		}
-	}
-	if (!function_exists('redisCacheDel')) {
+use Kaadon\ThinkBase\services\redisService;
+use think\facade\Env;
+use think\Model;
+use think\paginator\driver\Bootstrap;
+use think\response\Json;
 
-        /**
-         * 删除缓存
-         *
-         * @param string $name
-         * @param int|null $select
-         *
-         * @return Redis|int|bool
-         * @throws RedisException
-         */
-		function redisCacheDel(string $name, int $select = null): Redis|int|bool
-		{
-			$redis = redisService::instance($select);
-			$bool = $redis->del("cache:" . $name);
-			return $bool;
-		}
-	}
-	if (!function_exists('redisCacheUnlink')) {
+if (!function_exists('redisCacheSet')) {
 
-        /**
-         * 删除缓存
-         *
-         * @param string $name
-         * @param int|null $select
-         *
-         * @return Redis|int|bool
-         * @throws RedisException
-         */
-		function redisCacheUnlink(string $name, int $select = null): Redis|int|bool
-		{
-			$redis = redisService::instance($select);
-			$bool = $redis->unlink("cache:" . $name);
-			return $bool;
-		}
-	}
-	if (!function_exists('redisCacheDelAll')) {
+    /**
+     * 设置缓存
+     *
+     * @param string $name
+     * @param        $value
+     * @param int $expire
+     * @param int|null $select
+     *
+     * @return bool
+     */
+    function redisCacheSet(string $name, $value, int $expire = 3600, ?int $select = null): bool
+    {
+        try {
+            $redis = redisService::instance($select);
+            $redis->set('cache:' . $name, json_encode($value));
+            $redis->expire('cache:' . $name, $expire);
+        } catch (\Exception) {
+            return false;
+        }
+        return true;
+    }
+}
+if (!function_exists('redisCacheGet')) {
 
+    /**
+     *  获取缓存
+     * @param string $name
+     * @param int|null $select
+     * @return mixed
+     * @throws RedisException
+     */
+    function redisCacheGet(string $name, ?int $select = null): mixed
+    {
+        $resultData = [];
+        $redis = redisService::instance($select);
+        $data = $redis->get('cache:' . $name);
+        if (!empty($data)) {
+            $resultData = json_decode($data, true);
+        }
+        return $resultData;
+    }
+}
+if (!function_exists('redisCacheDel')) {
+
+    /**
+     * 删除缓存
+     *
+     * @param string $name
+     * @param int|null $select
+     *
+     * @return Redis|int|bool
+     * @throws RedisException
+     */
+    function redisCacheDel(string $name, ?int $select = null): Redis|int|bool
+    {
+        $redis = redisService::instance($select);
+        $bool = $redis->del("cache:" . $name);
+        return $bool;
+    }
+}
+if (!function_exists('redisCacheUnlink')) {
+
+    /**
+     * 删除缓存
+     *
+     * @param string $name
+     * @param int|null $select
+     *
+     * @return Redis|int|bool
+     * @throws RedisException
+     */
+    function redisCacheUnlink(string $name, ?int $select = null): Redis|int|bool
+    {
+        $redis = redisService::instance($select);
+        $bool = $redis->unlink("cache:" . $name);
+        return $bool;
+    }
+}
+if (!function_exists('redisCacheDelAll')) {
+
+    /**
+     * 批量删除缓存
+     *
+     * @param string $name
+     * @param int|null $select
+     *
+     * @return Redis|int|bool
+     * @throws Exception
+     */
+    function redisCacheDelAll(string $name, ?int $select = null): Redis|int|bool
+    {
+        try {
+            //逻辑代码
+            $redis = redisService::instance($select);
+            $keys = $redis->keys("cache:" . $name);
+            foreach ($keys as $key) {
+                $redis->del($key);
+            }
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
+        return true;
+    }
+}
+
+if (!function_exists('paginate')) {
+    /**
+     * 数据分页处理
+     *
+     * @param object|array $paginateData
+     * @param array $param
+     *
+     * @return Json
+     */
+    function paginate(object|array $paginateData, array $param = []): Json
+    {
+        if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
+        list("current_page" => $current_page,
+            "per_page" => $per_page,
+            "last_page" => $last_page,
+            "data" => $list,
+            "total" => $total)
+            = $paginateData;
+
+        $param = array_merge($param, [
+            "page" => $current_page,
+            "pages" => $last_page,
+            "list" => $list,
+            "limit" => $per_page,
+            "count" => $total
+        ]);
+        return success($param);
+    }
+}
+
+if (!function_exists('is_debug')) {
+    /**
+     * 是否为DEBUG
+     *
+     * @return bool|null
+     */
+    function is_debug(): ?bool
+    {
+        return Env::get("app_debug") ?? false;
+    }
+}
+if (!function_exists('is_dev')) {
+    /**
+     * 是否为DEV开发分支
+     *
+     * @return bool|null
+     */
+    function is_dev(): ?bool
+    {
+        return Env::get("app_dev") ?? false;
+    }
+}
+if (!function_exists('is_demo')) {
+    /**
+     * 是否为演示模式
+     *
+     * @return bool|null
+     */
+    function is_demo(): ?bool
+    {
+        return Env::get("app_demo") ?? false;
+    }
+}
+if (!function_exists("get_conf")) {
+    /**
+     * 获取配置
+     *
+     * @param string $group
+     * @param string|null $name
+     * @param array|string|int|float|bool $default
+     * @param string $filePath
+     *
+     * @return array|string|int|float|bool
+     */
+    function get_conf(string $group, ?string $name = null, array|string|int|float|bool $default = "", string $filePath = "app",): array|string|int|float|bool
+    {
+        $envPath = "{$group}";
+        if (!is_null($name)) $envPath .= $name;
+        return get_yaconf_config($group, $name, $filePath) ?? (Env::get($envPath) ?: $default);
+    }
+}
+
+if (!function_exists('get_yaconf_config')) {
+    /**
+     * @param string $group
+     * @param string|null $name
+     * @param string $fileName
+     *
+     * @return array|string|int|float|bool
+     */
+    function get_yaconf_config(string $group, ?string $name = null, string $fileName = "app"): array|string|int|float|bool
+    {
+        $path = "{$fileName}.{$group}";
+        if (!is_null($name)) $path .= ".{$name}";
+        return \Yaconf::get($path);
+    }
+}
+if (!function_exists('array_rand_value')) {
+    /**
+     * 数组随机取值
+     *
+     * @param array $array
+     * @param int $num
+     *
+     * @return mixed
+     */
+    function array_rand_value(array $array, int $num = 1): mixed
+    {
+        if ($num == 0) return null;
+        $array_count = count($array);
+        if ($array_count == 1) return $array[array_keys($array)[0]];
+        if ($num >= $array_count) {
+            return $array;
+        }
+        $value = null;
+        $array_rand = array_rand($array, $num);
+        if ($num == 1) {
+            $value = $array[$array_rand];
+        } else {
+            foreach ($array_rand as $item) {
+                $value[] = $array[$item];
+            }
+        }
+        return $value;
+    }
+}
+if (!function_exists('object_array')) {
+    /**
+     * OBJECT TO ARRAY
+     *
+     * @param array|object $array
+     *
+     * @return array
+     */
+    function object_array(array|object $array): array
+    {
+        if (is_object($array)) {
+            $array = (array)$array;
+        } elseif (is_array($array)) {
+            foreach ($array as $key => $value) {
+                if (is_array($value) || is_object($value)) {
+                    $array[$key] = object_array($value);
+                } else {
+                    $array[$key] = $value;
+                }
+            }
+        }
+        return $array;
+    }
+}
+if (!function_exists('line_array')) {
+    /**
+     * @param string $str 待分割字符串
+     * @param string $separator 分割字符串
+     * @param bool $reverse 是否反序
+     *
+     * @return array
+     */
+    function line_array(string $str, string $separator = ',', bool $reverse = false): array
+    {
+        try {
+            $strArray = explode($separator, $str);
+            foreach ($strArray as $key => $item) {
+                if (empty($item)) {
+                    unset($strArray[$key]);
+                }
+            }
+            if ($reverse) {
+                $strArray = array_reverse($strArray);
+            }
+        } catch (\Exception $exception) {
+            return [];
+        }
+        return $strArray;
+    }
+}
+/** RETURN **/
+if (!function_exists('success_zip')) {
+    /**
+     * 压缩返回
+     *
+     * @param object|array|string|null $data //数据
+     * @param string $msg //语言
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function success_zip(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
+    {
+        if ($data instanceof Model) $data = $data->toArray();
+        $message = '';
+        if (str_contains($msg, "::")) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            if (!empty($msg)) $message = lang($msg);
+        }
+        $data = base64_encode(string: gzcompress(json_encode($data)));
+        $resultData = [
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
+        ];
+
+        return json($resultData);
+    }
+}
+if (!function_exists('success')) {
+    /**
+     * @param object|array|string|null $data //数据
+     * @param string $msg //语言
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function success(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
+    {
+        if ($data instanceof Model) $data = $data->toArray();
+        $message = '';
+        if (str_contains($msg, "::")) {
+            $msgArr = explode('::', $msg);
+            foreach ($msgArr as $item) {
+                if (!empty($item)) {
+                    $message .= lang($item);
+                }
+            }
+        } else {
+            if (!empty($msg)) $message = lang($msg);
+        }
+        $resultData = [
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
+        ];
+
+        return json($resultData);
+    }
+}
+if (!function_exists('successes')) {
+    /**
+     * @param string $msg //语言
+     * @param object|array|string|null $data //数据
+     * @param int $statusCode 错误码
+     *
+     * @return Json
+     */
+    function successes(string $msg = "success", object|array|string|null $data = null, int $statusCode = 200): Json
+    {
+        if ($data instanceof Model) $data = $data->toArray();
+        $message = getMessageStr($msg);
+        $resultData = [
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'data' => $data,
+            'time' => time()
+        ];
+
+        return json($resultData);
+    }
+}
+if (!function_exists('error')) {
+    /**
+     * @param string $msg //语言
+     * @param int $statusCode //错误码
+     * @param array|string $err //错误内容
+     *
+     * @return Json
+     */
+    function error(string $msg = 'error', int $statusCode = 201, array|string $err = []): Json
+    {
+        $message = getMessageStr($msg);
+        $resultData = [
+            'code' => $statusCode,
+            'message' => empty($message) ? $msg : $message,
+            'error' => $err,
+            'time' => time()
+        ];
+        return json($resultData);
+    }
+
+    if (!function_exists('getMessageStr')) {
         /**
-         * 批量删除缓存
-         *
-         * @param string $name
-         * @param int|null $select
-         *
-         * @return Redis|int|bool
-         * @throws Exception
+         * 获取消息中的语言
+         * @param string $msg
+         * @return mixed|string
          */
-		function redisCacheDelAll(string $name, int $select = null): Redis|int|bool
-		{
-			try {
-				//逻辑代码
-				$redis = redisService::instance($select);
-				$keys  = $redis->keys("cache:" . $name);
-				foreach ($keys as $key) {
-					$redis->del($key);
-				}
-			} catch (\Exception $exception) {
-				throw new \Exception($exception->getMessage());
-			}
-			return true;
-		}
-	}
-	
-	if (!function_exists('paginate')) {
-		/**
-		 * 数据分页处理
-		 *
-		 * @param object|array $paginateData
-		 * @param array        $param
-		 *
-		 * @return Json
-		 */
-		function paginate(object|array $paginateData, array $param = []): Json
-		{
-			if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
-			list("current_page" => $current_page,
-				"per_page" => $per_page,
-				"last_page" => $last_page,
-				"data" => $list,
-				"total" => $total)
-				= $paginateData;
-			
-			$param = array_merge($param, [
-				"page"  => $current_page,
-				"pages" => $last_page,
-				"list"  => $list,
-				"limit" => $per_page,
-				"count" => $total
-			]);
-			return success($param);
-		}
-	}
-	
-	if (!function_exists('is_debug')) {
-		/**
-		 * 是否为DEBUG
-		 *
-		 * @return bool|null
-		 */
-		function is_debug(): ?bool
-		{
-			return Env::get("app_debug") ?? false;
-		}
-	}
-	if (!function_exists('is_dev')) {
-		/**
-		 * 是否为DEV开发模式
-		 *
-		 * @return bool|null
-		 */
-		function is_dev(): ?bool
-		{
-			return Env::get("app_dev") ?? false;
-		}
-	}
-	
-	if (!function_exists("get_conf")) {
-		/**
-		 * 获取配置
-		 *
-		 * @param string                      $group
-		 * @param string|null                 $name
-		 * @param array|string|int|float|bool $default
-		 * @param string                      $filePath
-		 *
-		 * @return array|string|int|float|bool
-		 */
-		function get_conf(string $group, ?string $name = null, array|string|int|float|bool $default = "", string $filePath = "app",): array|string|int|float|bool
-		{
-			$envPath = "{$group}";
-			if (!is_null($name)) $envPath .= $name;
-			return get_yaconf_config($group, $name, $filePath) ?? (Env::get($envPath) ?: $default);
-		}
-	}
-	
-	if (!function_exists('get_yaconf_config')) {
-		/**
-		 * @param string      $group
-		 * @param string|null $name
-		 * @param string      $fileName
-		 *
-		 * @return array|string|int|float|bool
-		 */
-		function get_yaconf_config(string $group, ?string $name = null, string $fileName = "app"): array|string|int|float|bool
-		{
-			$path = "{$fileName}.{$group}";
-			if (!is_null($name)) $path .= ".{$name}";
-			return \Yaconf::get($path);
-		}
-	}
-	if (!function_exists('array_rand_value')) {
-		/**
-		 * 数组随机取值
-		 *
-		 * @param array $array
-		 * @param int   $num
-		 *
-		 * @return mixed
-		 */
-		function array_rand_value(array $array, int $num = 1): mixed
-		{
-			$value       = null;
-			$array_count = count($array);
-			if ($array_count == 1) return $array[array_keys($array)[0]];
-			if ($num >= $array_count && $array_count !== 1) {
-				return $array;
-			}
-			$array_rand = array_rand($array, $num);
-			if ($num == 1) {
-				$value = $array[$array_rand];
-			} else {
-				foreach ($array_rand as $item) {
-					$value[] = $array[$item];
-				}
-			}
-			return $value;
-		}
-	}
-	if (!function_exists('object_array')) {
-		/**
-		 * OBJECT TO ARRAY
-		 *
-		 * @param array|object $array
-		 *
-		 * @return array
-		 */
-		function object_array(array|object $array): array
-		{
-			if (is_object($array)) {
-				$array = (array)$array;
-			}
-			if (is_array($array)) {
-				foreach ($array as $key => $value) {
-					if (is_array($value) || is_object($value)) {
-						$array[$key] = object_array($value);
-					} else {
-						$array[$key] = $value;
-					}
-				}
-			}
-			return $array;
-		}
-	}
-	if (!function_exists('line_array')) {
-		/**
-		 * @param string $str       待分割字符串
-		 * @param string $separator 分割字符串
-		 * @param bool   $reverse   是否反序
-		 *
-		 * @return array
-		 */
-		function line_array(string $str, string $separator = ',', bool $reverse = false): array
-		{
-			try {
-				$strArray = explode($separator, $str);
-				foreach ($strArray as $key => $item) {
-					if (empty($item)) {
-						unset($strArray[$key]);
-					}
-				}
-				if ($reverse) {
-					$strArray = array_reverse($strArray);
-				}
-			} catch (\Exception $exception) {
-				return [];
-			}
-			return $strArray;
-		}
-	}
-	/** RETURN **/
-	if (!function_exists('success_zip')) {
-		/**
-		 * 压缩返回
-		 *
-		 * @param object|array|string|null $data       //数据
-		 * @param string                   $msg        //语言
-		 * @param int                      $statusCode 错误码
-		 *
-		 * @return Json
-		 */
-		function success_zip(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
-		{
-			if ($data instanceof Model) $data = $data->toArray();
-			$message = '';
-			if (strpos($msg, "::") !== false) {
-				$msgArr = explode('::', $msg);
-				foreach ($msgArr as $item) {
-					if (!empty($item)) {
-						$message .= lang($item);
-					}
-				}
-			} else {
-				if (!empty($msg)) $message = lang($msg);
-			}
-			$data       = base64_encode(string: gzcompress(json_encode($data)));
-			$resultData = [
-				'code'    => $statusCode,
-				'message' => empty($message) ? $msg : $message,
-				'data'    => $data,
-				'time'    => time()
-			];
-			
-			return json($resultData);
-		}
-	}
-	if (!function_exists('success')) {
-		/**
-		 * @param object|array|string|null $data       //数据
-		 * @param string                   $msg        //语言
-		 * @param int                      $statusCode 错误码
-		 *
-		 * @return Json
-		 */
-		function success(object|array|string|null $data = null, string $msg = "success", int $statusCode = 200): Json
-		{
-			if ($data instanceof Model) $data = $data->toArray();
-			$message = '';
-			if (strpos($msg, "::") !== false) {
-				$msgArr = explode('::', $msg);
-				foreach ($msgArr as $item) {
-					if (!empty($item)) {
-						$message .= lang($item);
-					}
-				}
-			} else {
-				if (!empty($msg)) $message = lang($msg);
-			}
-			$resultData = [
-				'code'    => $statusCode,
-				'message' => empty($message) ? $msg : $message,
-				'data'    => $data,
-				'time'    => time()
-			];
-			
-			return json($resultData);
-		}
-	}
-	if (!function_exists('successes')) {
-		/**
-		 * @param string                   $msg        //语言
-		 * @param object|array|string|null $data       //数据
-		 * @param int                      $statusCode 错误码
-		 *
-		 * @return Json
-		 */
-		function successes(string $msg = "success", object|array|string|null $data = null, int $statusCode = 200): Json
-		{
-			if ($data instanceof Model) $data = $data->toArray();
-			$message = '';
-			if (strpos($msg, "::") !== false) {
-				$msgArr = explode('::', $msg);
-				foreach ($msgArr as $item) {
-					if (!empty($item)) {
-						$message .= lang($item);
-					}
-				}
-			} else {
-				if (!empty($msg)) $message = lang($msg);
-			}
-			$resultData = [
-				'code'    => $statusCode,
-				'message' => empty($message) ? $msg : $message,
-				'data'    => $data,
-				'time'    => time()
-			];
-			
-			return json($resultData);
-		}
-	}
-	if (!function_exists('error')) {
-		/**
-		 * @param string       $msg        //语言
-		 * @param int          $statusCode //错误码
-		 * @param array|string $err        //错误内容
-		 *
-		 * @return Json
-		 */
-		function error(string $msg = 'error', int $statusCode = 201, array|string $err = []): Json
-		{
-			$message = '';
-			if (strpos($msg, "::") !== false) {
-				$msgArr = explode('::', $msg);
-				foreach ($msgArr as $item) {
-					if (!empty($item)) {
-						$message .= lang($item);
-					}
-				}
-			} else {
-				if (!empty($msg)) $message = lang($msg);
-			}
-			$resultData = [
-				'code'    => $statusCode,
-				'message' => empty($message) ? $msg : $message,
-				'error'   => $err,
-				'time'    => time()
-			];
-			return json($resultData);
-		}
-	}
+        function getMessageStr(string $msg): mixed
+        {
+            $message = '';
+            if (str_contains($msg, "::")) {
+                $msgArr = explode('::', $msg);
+                foreach ($msgArr as $item) {
+                    if (!empty($item)) {
+                        $message .= lang($item);
+                    }
+                }
+            } else {
+                if (!empty($msg)) $message = lang($msg);
+            }
+            return $message;
+        }
+    }
+}
 
 

@@ -3,7 +3,9 @@
 
 namespace Kaadon\ThinkBase\services;
 
+use Redis;
 use think\facade\Env;
+use Exception;
 
 /**
  *
@@ -30,13 +32,17 @@ class redisService
     protected static $static_instance = null;
 
     /**
+     * redisService constructor.
      * @param string|null $host
      * @param int|null $port
      * @param int $select
      * @param string|null $password
+     * @throws Exception
      */
     public function __construct(?int $select = null, ?string $host = null, ?int $port = null, ?string $password = null)
     {
+        $this->validateConfig($host, $port, $select, $password);
+
         if (is_null($host)) {
             $this->host = Env::get('redis.hostname', "127.0.0.1");
         }
@@ -51,48 +57,79 @@ class redisService
         }
     }
 
-
     /**
-     * @param int $select
-     * @param string|null $host
-     * @param int|null $port
-     * @param string|null $password
-     *
-     * @return \Redis
+     * Get a Redis instance.
+     * @return Redis
+     * @throws Exception
      */
-    public static function instance(): \Redis
+    public static function instance(): Redis
     {
-        try {
-            if (!self::$static_instance) {
-                self::$static_instance = (new self())->redisClient();
-            } else {
-                if (!self::$static_instance->ping())
-                    self::$static_instance = (new self())->redisClient();
-            }
-        } catch (\Exception $e) {
-            // 断线重连
-            self::$static_instance = (new self())->redisClient();
+        if (is_null(self::$static_instance) || !self::$static_instance->ping()) {
+            self::$static_instance = self::createRedisInstance();
         }
         return self::$static_instance;
     }
 
     /**
-     * @param $select
-     *
-     * @return \Redis
+     * Create and return a Redis instance.
+     * @return Redis
+     * @throws Exception
      */
-    protected function redisClient(?int $select = null): \Redis
+    protected static function createRedisInstance(): Redis
     {
-        $redis = new \Redis();
-        $redis->connect($this->host, $this->port);
-        $redis->auth($this->password);
-        $redis->select($this->select);
-        $redis->setOption(\Redis::OPT_PREFIX,Env::get("redis.prefix","cache:"));
+        $instance = new self();
+        try {
+            $redis = $instance->redisClient();
+            // Perform a ping to ensure connection and authentication are successful.
+            if (!$redis->ping()) {
+                throw new Exception('Failed to ping Redis server after connection and authentication.');
+            }
+            return $redis;
+        } catch (Exception $e) {
+            throw new Exception('Failed to create Redis instance: ' . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Connect to Redis and return the client.
+     * @param int|null $select
+     * @return Redis
+     * @throws Exception
+     */
+    protected function redisClient(?int $select = null): Redis
+    {
+        $redis = new Redis();
+        try {
+            $redis->connect($this->host, $this->port);
+            if (!empty($this->password) && !$redis->auth($this->password)) {
+                throw new Exception('Redis authentication failed.');
+            }
+            if ($select !== null && ($select < 0 || $select > 15)) {
+                throw new Exception('Redis database index is out of allowed range (0-15).');
+            }
+            $redis->select($select ?? $this->select);
+            $redis->setOption(\Redis::OPT_PREFIX, Env::get("redis.prefix", "cache:"));
+        } catch (Exception $e) {
+            throw new Exception('Failed to connect to Redis: ' . $e->getMessage(), 0, $e);
+        }
         return $redis;
     }
 
-    protected function getSelect()
+    /**
+     * Validates configuration values.
+     * @param string|null $host
+     * @param int|null $port
+     * @param int $select
+     * @param string|null $password
+     * @throws Exception
+     */
+    private function validateConfig(?string $host, ?int $port, int $select, ?string $password)
     {
-        return $this->select;
+        if ($port !== null && ($port < 0 || $port > 65535)) {
+            throw new Exception('Port number is out of allowed range (0-65535).');
+        }
+        if ($select < 0 || $select > 15) {
+            throw new Exception('Database index is out of allowed range (0-15).');
+        }
     }
 }
