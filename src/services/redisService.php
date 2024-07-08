@@ -123,7 +123,7 @@ class redisService
      * @param string|null $password
      * @throws Exception
      */
-    private function validateConfig(?string $host, ?int $port, int $select, ?string $password)
+    private function validateConfig(?string $host, ?int $port, ?int $select, ?string $password)
     {
         if ($port !== null && ($port < 0 || $port > 65535)) {
             throw new Exception('Port number is out of allowed range (0-65535).');
