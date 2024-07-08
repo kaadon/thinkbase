@@ -2,8 +2,6 @@
 
 namespace Kaadon\ThinkBase\BaseClass;
 
-use Exception;
-use think\facade\Log;
 use think\Model;
 /*
  * @Description: 模型基类
