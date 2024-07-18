@@ -17,30 +17,43 @@
 
 namespace Kaadon\ThinkBase\traits;
 
-use Exception;
 use think\Model;
 
+/**
+ *
+ */
 trait ModelTrait
 {
+    protected bool $jsonAssoc = true;
+
     /**
      * 清除缓存
      * @param Model $model
      * @return void
      */
-    public static function clearCache(Model $model): void{}
-    /**
-     * 更新后事件
-     * @param Model $model
-     * @return void
-     * @throws Exception
-     */
-    public static function onAfterUpdate(Model $model): void
+    public static function clearCache(Model $model): void
     {
-        try {
-            //逻辑代码
-            self::clearCache($model);
-        } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
-        }
     }
+
+
+    /**
+     * @param \think\Model $model
+     * @return void
+     */
+    public static function onAfterWrite(Model $model): void
+    {
+        self::clearCache($model);
+    }
+
+    /**
+     * @param \think\Model $model
+     * @return void
+     */
+    public static function onAfterDelete(Model $model): void
+    {
+        //逻辑代码
+        self::clearCache($model);
+    }
+
+
 }
