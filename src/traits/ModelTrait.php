@@ -24,8 +24,6 @@ use think\Model;
  */
 trait ModelTrait
 {
-    protected bool $jsonAssoc = true;
-
     /**
      * 清除缓存
      * @param Model $model
