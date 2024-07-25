@@ -72,6 +72,8 @@ abstract class BaseJobs implements JobsInterface
             && is_array($this->JobData['data'])//数据必须是数组
         ) {
             echo "♻️♻️♻️ 业务执行中... \n";
+            echo "\n🔥🔥🔥 任务: {$this->JobData['task']} \n";
+            echo "🔥🔥🔥 数据: " . json_encode($this->JobData['data'],JSON_UNESCAPED_SLASHES) . "\n";
             try {
                 $task = $this->JobData['task'];
                 $reflection = new ReflectionMethod($this, $task);
