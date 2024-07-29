@@ -73,10 +73,11 @@ abstract class BaseJobs implements JobsInterface
         ) {
             echo "♻️♻️♻️ 业务执行中... \n";
 
-            echo "\n🔥🔥🔥 任务: {$this->JobData['task']} \n";
+            echo "\n🔥🔥🔥 任务: " . $this->JobData['task'] . " \n\n";
 
-            $dataMsg = str_replace('"','',json_encode($this->JobData['data'],JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-            echo "\n🔥🔥🔥 数据: $dataMsg \n";
+            var_dump(json_encode($this->JobData['data']));
+
+            echo " \n\n";
 
             try {
                 $task = $this->JobData['task'];
