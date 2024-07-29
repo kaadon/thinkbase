@@ -40,10 +40,7 @@ abstract class BaseJobs implements JobsInterface
     {
         $this->JobData   = $data;
         echo "{$this->down}任务名称: ["  .  ($this->JobData['task'] ??  '任务名称---错误').  "] \n";
-
         $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
-        $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
-
         echo $this->down . '任务数据:' . "\n";
         print_r($this->JobData);
         echo "\n \n";
@@ -87,13 +84,6 @@ abstract class BaseJobs implements JobsInterface
             && is_array($this->JobData['data'])//数据必须是数组
         ) {
             echo "♻️♻️♻️ 业务执行中... \n";
-
-            echo "任务数据 👇👇👇 \n \n";
-
-            var_dump(json_encode($this->JobData['data']));
-
-            echo "\n \n";
-
             try {
                 $task = $this->JobData['task'];
                 $reflection = new ReflectionMethod($this, $task);
