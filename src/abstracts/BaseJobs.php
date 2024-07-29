@@ -17,7 +17,7 @@ abstract class BaseJobs implements JobsInterface
     /**
      * @var string
      */
-    public string $down = "\n 👇👇👇 \n 👉👉👉";
+    public string $down = "\n 👉👉👉";
     /**
      * @var string
      */
@@ -39,8 +39,15 @@ abstract class BaseJobs implements JobsInterface
     public function fire(Job $job, array $data): void
     {
         $this->JobData   = $data;
-        echo "任务名称: ["  .  ($this->JobData['task'] ??  '任务名称---错误').  "] \n";
+        echo "{$this->down}任务名称: ["  .  ($this->JobData['task'] ??  '任务名称---错误').  "] \n";
+
         $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
+        $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
+
+        echo $this->down . '任务数据:' . "\n";
+        print_r($this->JobData);
+        echo "\n \n";
+
         if ($job->attempts() > 3) {
             $job->delete();
             echo  "{$this->down} 执行[{$job->getJobId()}]超过 {$job->attempts()} 次错误: {$this->error} ❌ ,删除任务! \n";
