@@ -39,10 +39,10 @@ abstract class BaseJobs implements JobsInterface
     public function fire(Job $job, array $data): void
     {
         $this->JobData   = $data;
+        echo "任务名称: ["  .  ($this->JobData['task'] ??  '任务名称---错误').  "] \n";
         $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
         if ($job->attempts() > 3) {
             $job->delete();
-            Log::record($job->getRawBody(), 'queue');
             echo  "{$this->down} 执行[{$job->getJobId()}]超过 {$job->attempts()} 次错误: {$this->error} ❌ ,删除任务! \n";
         }else{
             try {
@@ -81,11 +81,11 @@ abstract class BaseJobs implements JobsInterface
         ) {
             echo "♻️♻️♻️ 业务执行中... \n";
 
-            echo "\n🔥🔥🔥 任务: " . $this->JobData['task'] . " \n\n";
+            echo "任务数据 👇👇👇 \n \n";
 
             var_dump(json_encode($this->JobData['data']));
 
-            echo " \n\n";
+            echo "\n \n";
 
             try {
                 $task = $this->JobData['task'];
