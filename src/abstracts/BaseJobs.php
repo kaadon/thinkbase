@@ -44,26 +44,27 @@ abstract class BaseJobs implements JobsInterface
             $job->delete();
             Log::record($job->getRawBody(), 'queue');
             echo  "{$this->down} 执行[{$job->getJobId()}]超过 {$job->attempts()} 次错误: {$this->error} ❌ ,删除任务! \n";
-            return;
-        }
-        try {
-            //逻辑代码
-            $execute = $this->doJOb();
-            if ($execute) {
-                $job->delete();
-                echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次任务: 成功 ✅ !,删除任务! \n";
-            } else {
-                if ($job->attempts() > 2) {
+        }else{
+            try {
+                //逻辑代码
+                $execute = $this->doJOb();
+                if ($execute) {
                     $job->delete();
-                    echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次失败 ❌ ,错误为:: {$this->error},删除任务! \n";
-                }else{
-                    echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次失败 ❌ ,错误为:: {$this->error} \n";
+                    echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次任务: 成功 ✅ !,删除任务! \n";
+                } else {
+                    if ($job->attempts() > 2) {
+                        $job->delete();
+                        echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次失败 ❌ ,错误为:: {$this->error},删除任务! \n";
+                    }else{
+                        echo "{$this->down} 执行[{$job->getJobId()}]第 {$job->attempts()} 次失败 ❌ ,错误为:: {$this->error} \n";
+                    }
                 }
+            } catch (\Exception $exception) {
+                echo "{$this->down} 错误: {$exception->getMessage()} \n";
+                $job->delete();
             }
-        } catch (\Exception $exception) {
-            echo "{$this->down} 错误: {$exception->getMessage()} \n";
-            $job->delete();
         }
+
     }
 
     /**
