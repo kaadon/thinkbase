@@ -45,7 +45,7 @@ class File
      * @param bool $recursive 是否递归创建
      * @return bool
      */
-    public static function dirMkdir($path = '', $mode = 0777, $recursive = true): bool
+    public static function dirMkdir(string $path = '', int $mode = 0777, bool $recursive = true): bool
     {
         clearstatcache();
         if (!is_dir($path)) {
@@ -96,7 +96,7 @@ class File
      * @param string $dst 目的地文件夹
      * @return bool  返回状态
      */
-    public static function dirCopy($src = '', $dst = ''): bool
+    public static function dirCopy(string $src = '', string $dst = ''): bool
     {
         if (empty($src) || empty($dst)) {
             return false;
@@ -120,6 +120,7 @@ class File
     /**
      * 获取目录下所有文件
      * @param string $path 目录
+     * @param array $files
      * @return array
      */
     public static function getDir(string $path, &$files = []): array
@@ -142,10 +143,10 @@ class File
     /**
      * 删除目录及目录下所有文件或删除指定文件
      * @param string $path 待删除目录路径
-     * @param int $delDir 是否删除目录
+     * @param bool|int $delDir 是否删除目录
      * @return bool 返回删除状态
      */
-    public static function delDirAndFile($path, $delDir = true): bool
+    public static function delDirAndFile(string $path, bool|int $delDir = true): bool
     {
         if (is_dir($path)) {
             $handle = opendir($path);
@@ -188,7 +189,7 @@ class File
                 for ($i = 0; $i < $zipArchive->numFiles; $i++) {
                     $entryInfo = $zipArchive->statIndex($i);
                     foreach ($jump as $k => $v) {
-                        if (strpos($entryInfo["name"], $v) === 0) {
+                        if (str_starts_with($entryInfo["name"], $v)) {
                             $zipArchive->deleteIndex($i);
                         }
                     }
@@ -236,14 +237,13 @@ class File
 
     /**
      * 修改系统config文件
-     * @param $pat  配置前缀 $pat[0] = 参数前缀;
-     * @param $rep  数据变量 $rep[0] = 要替换的内容;
-     * @param $file 数据变量 $file 文件名;
+     * @param array $pat 配置前缀 $pat[0] = 参数前缀;
+     * @param array $rep 数据变量 $rep[0] = 要替换的内容;
+     * @param string $file 数据变量 $file 文件名;
      * @return bool 返回状态
      */
     public static function editConfig(array $pat, array $rep, string $file): bool
     {
-        if (is_array($pat) and is_array($rep)) {
             for ($i = 0; $i < count($pat); $i++) {
                 $pats[$i] = '/\'' . $pat[$i] . '\'(.*?),/';
                 $reps[$i] = "'" . $pat[$i] . "'" . " => " . "'" . $rep[$i] . "',";
@@ -252,8 +252,5 @@ class File
             $string = preg_replace($pats, $reps, $string);
             file_put_contents($file, $string);
             return true;
-        } else {
-            return false;
-        }
     }
 }

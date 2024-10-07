@@ -5,7 +5,6 @@ namespace Kaadon\ThinkBase\services;
 
 use Redis;
 use think\facade\Env;
-use Exception;
 
 /**
  *
@@ -80,13 +79,12 @@ class redisService
         $instance = new self();
         try {
             $redis = $instance->redisClient();
-            // Perform a ping to ensure connection and authentication are successful.
             if (!$redis->ping()) {
-                throw new Exception('Failed to ping Redis server after connection and authentication.');
+                throw new ThinkBaseException('Failed to ping Redis server after connection and authentication.');
             }
             return $redis;
         } catch (Exception $e) {
-            throw new Exception('Failed to create Redis instance: ' . $e->getMessage(), 0, $e);
+            throw new ThinkBaseException('Failed to create Redis instance: ' . $e->getMessage(), 0, $e);
         }
     }
 
@@ -94,7 +92,7 @@ class redisService
      * Connect to Redis and return the client.
      * @param int|null $select
      * @return Redis
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     protected function redisClient(?int $select = null): Redis
     {
@@ -102,15 +100,15 @@ class redisService
         try {
             $redis->connect($this->host, $this->port);
             if (!empty($this->password) && !$redis->auth($this->password)) {
-                throw new Exception('Redis authentication failed.');
+                throw new ThinkBaseException('Redis authentication failed.');
             }
             if ($select !== null && ($select < 0 || $select > 15)) {
-                throw new Exception('Redis database index is out of allowed range (0-15).');
+                throw new ThinkBaseException('Redis database index is out of allowed range (0-15).');
             }
             $redis->select($select ?? $this->select);
             $redis->setOption(\Redis::OPT_PREFIX, Env::get("redis.prefix", "cache:"));
         } catch (Exception $e) {
-            throw new Exception('Failed to connect to Redis: ' . $e->getMessage(), 0, $e);
+            throw new ThinkBaseException('Failed to connect to Redis: ' . $e->getMessage(), 0, $e);
         }
         return $redis;
     }
@@ -121,15 +119,15 @@ class redisService
      * @param int|null $port
      * @param int $select
      * @param string|null $password
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     private function validateConfig(?string $host, ?int $port, ?int $select, ?string $password)
     {
         if ($port !== null && ($port < 0 || $port > 65535)) {
-            throw new Exception('Port number is out of allowed range (0-65535).');
+            throw new ThinkBaseException('Port number is out of allowed range (0-65535).');
         }
         if ($select < 0 || $select > 15) {
-            throw new Exception('Database index is out of allowed range (0-15).');
+            throw new ThinkBaseException('Database index is out of allowed range (0-15).');
         }
     }
 }

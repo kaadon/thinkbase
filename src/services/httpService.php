@@ -4,7 +4,7 @@ namespace Kaadon\ThinkBase\services;
 class httpService
 {
     // curl 请求错误码
-    protected static $list_errno
+    protected static array $list_errno
         = [
             1  => 'CURLE_UNSUPPORTED_PROTOCOL (1) – 您传送给 libcurl 的网址使用了此 libcurl 不支持的协议。 可能是您没有使用的编译时选项造成了这种情况（可能是协议字符串拼写有误，或没有指定协议 libcurl 代码）。',
             2  => 'CURLE_FAILED_INIT (2) – 非常早期的初始化代码失败。 可能是内部错误或问题。',

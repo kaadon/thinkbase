@@ -20,7 +20,7 @@ namespace Kaadon\ThinkBase\traits;
 use think\Model;
 
 /**
- *
+ * Trait ModelTrait
  */
 trait ModelTrait
 {

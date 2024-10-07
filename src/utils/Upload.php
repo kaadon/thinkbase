@@ -74,10 +74,10 @@ class Upload
     {
         try {
             //逻辑代码
-            $savename = Filesystem::disk('public')->putFile($filename, $file);
+            $saveName = Filesystem::disk('public')->putFile($filename, $file);
             return [
                 'domain' => $this->config['domain']??'',
-                'path' => "/storage/" . str_replace(DIRECTORY_SEPARATOR, '/', $savename)
+                'path' => "/storage/" . str_replace(DIRECTORY_SEPARATOR, '/', $saveName)
             ];
         } catch (Exception $exception) {
             throw new Exception($exception->getMessage());

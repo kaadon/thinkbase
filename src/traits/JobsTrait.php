@@ -6,7 +6,7 @@ namespace Kaadon\ThinkBase\traits;
 use think\queue\Job;
 
 /**
- *
+ * Trait JobsTrait
  */
 trait JobsTrait
 {

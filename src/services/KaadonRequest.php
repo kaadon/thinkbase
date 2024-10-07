@@ -18,7 +18,7 @@
 namespace Kaadon\ThinkBase\services;
 
 /**
- *
+ * Class KaadonRequest
  */
 class KaadonRequest
 {

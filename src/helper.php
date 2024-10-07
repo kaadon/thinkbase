@@ -44,7 +44,7 @@ if (!function_exists('redisCacheGet')) {
      *  获取缓存
      * @param string $name
      * @return mixed
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     function redisCacheGet(string $name): mixed
     {
@@ -58,7 +58,7 @@ if (!function_exists('redisCacheGet')) {
             }
             return $resultData;
         } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+            throw new ThinkBaseException($exception->getMessage());
         }
     }
 }
@@ -69,7 +69,7 @@ if (!function_exists('redisCacheDel')) {
      *
      * @param string $name
      * @return Redis|int|bool
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     function redisCacheDel(string $name): Redis|int|bool
     {
@@ -78,7 +78,7 @@ if (!function_exists('redisCacheDel')) {
             $redis = redisService::instance();
             return $redis->del("cache:" . $name);
         } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+            throw new ThinkBaseException($exception->getMessage());
         }
     }
 }
@@ -89,7 +89,7 @@ if (!function_exists('redisCacheUnlink')) {
      *
      * @param string $name
      * @return Redis|int|bool
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     function redisCacheUnlink(string $name): Redis|int|bool
     {
@@ -98,7 +98,7 @@ if (!function_exists('redisCacheUnlink')) {
             $redis = redisService::instance();
             return $redis->unlink("cache:" . $name);
         } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+            throw new ThinkBaseException($exception->getMessage());
         }
     }
 }
@@ -111,7 +111,7 @@ if (!function_exists('redisCacheDelAll')) {
      * @param int|null $select
      *
      * @return Redis|int|bool
-     * @throws Exception
+     * @throws ThinkBaseException
      */
     function redisCacheDelAll(string $name, ?int $select): Redis|int|bool
     {
@@ -123,7 +123,7 @@ if (!function_exists('redisCacheDelAll')) {
                 $redis->del($key);
             }
         } catch (\Exception $exception) {
-            throw new \Exception($exception->getMessage());
+            throw new ThinkBaseException($exception->getMessage());
         }
         return true;
     }
@@ -139,7 +139,7 @@ if (!function_exists('paginate')) {
      *
      * @return Json
      */
-    function paginate(object|array $paginateData, array $param = []): Json
+    function paginate(object|array $paginateData, array $param = [], $zip = false): Json
     {
         if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
         list("current_page" => $current_page,
@@ -156,7 +156,9 @@ if (!function_exists('paginate')) {
             "limit" => $per_page,
             "count" => $total
         ]);
-        return success($param);
+        if ($zip) {
+            return success_zip($param);
+        } else return success($param);
     }
 }
 
@@ -231,11 +233,10 @@ if (!function_exists('success_zip')) {
     {
         if ($data instanceof Model) $data = $data->toArray();
         $message = getMessageStr($msg);
-        $data = base64_encode(string: gzcompress(json_encode($data)));
         $resultData = [
             'code' => $statusCode,
             'message' => empty($message) ? $msg : $message,
-            'data' => $data,
+            'data' => is_null($data) ? null : base64_encode(string: gzcompress(is_array($data) ? json_encode($data) : $data)),
             'time' => time()
         ];
 
@@ -260,7 +261,6 @@ if (!function_exists('success')) {
             'data' => $data,
             'time' => time()
         ];
-
         return json($resultData);
     }
 }
