@@ -32,8 +32,8 @@ if (!function_exists('redisCacheSet')) {
             $redis = redisService::instance();
             $redis->set('cache:' . $name, json_encode($value));
             $redis->expire('cache:' . $name, $expire);
-        } catch (\Exception) {
-            return false;
+        } catch (Exception $exception) {
+            throw new ThinkBaseException($exception->getMessage()) ;
         }
         return true;
     }
@@ -57,7 +57,7 @@ if (!function_exists('redisCacheGet')) {
                 $resultData = json_decode($data, true);
             }
             return $resultData;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new ThinkBaseException($exception->getMessage());
         }
     }
@@ -77,7 +77,7 @@ if (!function_exists('redisCacheDel')) {
             //逻辑代码
             $redis = redisService::instance();
             return $redis->del("cache:" . $name);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new ThinkBaseException($exception->getMessage());
         }
     }
@@ -97,7 +97,7 @@ if (!function_exists('redisCacheUnlink')) {
             //逻辑代码
             $redis = redisService::instance();
             return $redis->unlink("cache:" . $name);
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new ThinkBaseException($exception->getMessage());
         }
     }
@@ -122,46 +122,12 @@ if (!function_exists('redisCacheDelAll')) {
             foreach ($keys as $key) {
                 $redis->del($key);
             }
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new ThinkBaseException($exception->getMessage());
         }
         return true;
     }
 }
-
-/** 分页 **/
-if (!function_exists('paginate')) {
-    /**
-     * 数据分页处理
-     *
-     * @param object|array $paginateData
-     * @param array $param
-     *
-     * @return Json
-     */
-    function paginate(object|array $paginateData, array $param = [], $zip = false): Json
-    {
-        if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
-        list("current_page" => $current_page,
-            "per_page" => $per_page,
-            "last_page" => $last_page,
-            "data" => $list,
-            "total" => $total)
-            = $paginateData;
-
-        $param = array_merge($param, [
-            "page" => $current_page,
-            "pages" => $last_page,
-            "list" => $list,
-            "limit" => $per_page,
-            "count" => $total
-        ]);
-        if ($zip) {
-            return success_zip($param);
-        } else return success($param);
-    }
-}
-
 /** 环境判断 **/
 if (!function_exists('is_debug')) {
     /**
@@ -196,7 +162,6 @@ if (!function_exists('is_demo')) {
         return Env::get("app_demo") ?? false;
     }
 }
-
 /** yaconf **/
 if (!function_exists("get_conf")) {
     /**
@@ -216,8 +181,6 @@ if (!function_exists("get_conf")) {
         return get_yaconf_config($group, $name, $filePath) ?? (Env::get($envPath) ?: $default);
     }
 }
-
-
 /** RETURN **/
 if (!function_exists('success_zip')) {
     /**
@@ -305,8 +268,27 @@ if (!function_exists('error')) {
         ];
         return json($resultData);
     }
-
-    if (!function_exists('getMessageStr')) {
+}
+if (!function_exists('errors')) {
+    /**
+     * @param \Exception $err //错误内容
+     *
+     * @param int $statusCode //错误码
+     * @param string $msg //语言
+     * @return Json
+     */
+    function errors(Exception $err, int $statusCode = 201, string $msg = 'error'): Json
+    {
+        $resultData = [
+            'code' => $statusCode,
+            'message' => is_dev()? getMessageStr($err->getMessage()) : getMessageStr($msg),
+            'error' => is_dev()? $err->getTrace() : [],
+            'time' => time()
+        ];
+        return json($resultData);
+    }
+}
+if (!function_exists('getMessageStr')) {
         /**
          * 获取消息中的语言
          * @param string $msg
@@ -328,6 +310,36 @@ if (!function_exists('error')) {
             return $message;
         }
     }
-}
+/** 分页 **/
+if (!function_exists('paginate')) {
+    /**
+     * 数据分页处理
+     *
+     * @param object|array $paginateData
+     * @param array $param
+     * @param bool $zip
+     * @return Json
+     */
+    function paginate(object|array $paginateData, array $param = [], $zip = false): Json
+    {
+        if ($paginateData instanceof Bootstrap) $paginateData = $paginateData->toArray();
+        list("current_page" => $current_page,
+            "per_page" => $per_page,
+            "last_page" => $last_page,
+            "data" => $list,
+            "total" => $total)
+            = $paginateData;
 
+        $param = array_merge($param, [
+            "page" => $current_page,
+            "pages" => $last_page,
+            "list" => $list,
+            "limit" => $per_page,
+            "count" => $total
+        ]);
+        if ($zip) {
+            return success_zip($param);
+        } else return success($param);
+    }
+}
 
