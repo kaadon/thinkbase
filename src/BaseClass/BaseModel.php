@@ -55,16 +55,22 @@ class BaseModel extends Model
 
 
     /**
-     * @param array $data
+     * @param array|object $data
      * @param array $allowField
      * @param bool $replace
      * @param string $suffix
      * @return Model
      */
-    public static function create(array $data, array $allowField = [], bool $replace = false, string $suffix = ''): Model
+    public static function create(array|object $data, array $allowField = [], bool $replace = false, string $suffix = ''): Model
     {
         $selfClass                    = (new self());
-        $data[$selfClass->createTime] = $data[$selfClass->updateTime] = time();
+        $createTime = $selfClass->createTime;
+        $updateTime = $selfClass->updateTime;
+        if (is_object($data)) {
+            $data->$createTime = $data->$updateTime = time();
+        } else {
+            $data[$createTime] = $data[$updateTime] = time();
+        }
         return parent::create($data, $allowField, $replace, $suffix);
     }
 
