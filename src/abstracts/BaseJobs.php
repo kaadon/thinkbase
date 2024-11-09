@@ -42,7 +42,7 @@ abstract class BaseJobs implements JobsInterface
         echo "{$this->down}任务名称: ["  .  ($this->JobData['task'] ??  '任务名称---错误').  "] \n";
         $this->jobChanel = json_decode($job->getRawBody(), true)['job'];
         echo $this->down . '任务数据:' . "\n";
-        print_r($this->JobData);
+        print_r(str_replace('"',"*",json_encode($this->JobData)));
         echo "\n \n";
 
         if ($job->attempts() > 3) {
