@@ -4,6 +4,7 @@ namespace Kaadon\ThinkBase\utils;
 
 
 use Exception;
+use Kaadon\Helper\GdImageHelper;
 use think\facade\Event;
 use think\facade\Filesystem;
 
@@ -17,8 +18,6 @@ class Upload
      * @var array|mixed
      */
     public mixed $config = [];
-
-
     /**
      * @param array $upload_config
      */
@@ -26,7 +25,6 @@ class Upload
     {
         $this->config = !empty($upload_config) ? $upload_config : config('upload');
     }
-
 
     /**
      * @param $file
@@ -52,10 +50,12 @@ class Upload
                 Event::trigger($event, [
                     'upload_type' => $upload_type,
                     'original_name' => $file->getOriginalName(),
-                    'mime_type' => $file->getOriginalMime(),
-                    'file_ext' => strtolower($file->getOriginalExtension()),
+                    'original_mime_type' => $file->getOriginalMime(),
+                    'mime_type' => $res['mime']??'',
+                    'file_ext' => $res['extension']??'',
                     'url' => "{$res['domain']}{$res['path']}",
                     'sha1' => $file->hash(),
+                    'md5' => $res['md5']??'',
                     'file_size' => $file->getSize(),
                 ]);
             }
@@ -65,18 +65,29 @@ class Upload
     }
 
     /**
-     * @param $file
+     * @param \think\File $file
      * @param string $filename
+     * @param string $extension
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
-    public function localUpload($file, string $filename = "system"): array
+    public function localUpload(\think\File $file, string $filename = "system",string $extension = 'webp' ): array
     {
         try {
             //逻辑代码
+            if (GdImageHelper::isSupportSuffix($extension)) {
+                (new GdImageHelper($file->getRealPath(),$file->extension()))->convertTo($file->getRealPath(), $extension);
+                $file= new \think\File($file->getRealPath());
+                $file->setExtension('webp');
+            }else{
+                $extension = $file->extension();
+            }
             $saveName = Filesystem::disk('public')->putFile($filename, $file);
             return [
                 'domain' => $this->config['domain']??'',
+                'md5' => $file->md5(),
+                'mime' => $file->getMime(),
+                'extension' => $extension,
                 'path' => "/storage/" . str_replace(DIRECTORY_SEPARATOR, '/', $saveName)
             ];
         } catch (Exception $exception) {
