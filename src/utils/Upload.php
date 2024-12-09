@@ -27,18 +27,18 @@ class Upload
     }
 
     /**
-     * @param $file
+     * @param \think\File $file
      * @param array $upload_config
      * @return array
-     * @throws Exception
+     * @throws \Exception
      */
-    public function upload($file, array $upload_config = []): array
+    public function upload(\think\File $file, array $upload_config = []): array
     {
         $this->config = array_merge($this->config, $upload_config);
         $upload_type = $this->config['uploadType'] ?? 'local';
         $catePath = $this->config['catePath'] ?? 'system';
         $res = match ($upload_type) {
-            "local" => $this->localUpload($file, $catePath),
+            "local" => $this->localUpload($file, $catePath,$file->extension()),
             default => throw new Exception("上传类型错误"),
         };
         $save_file = $this->config['saveFile'] ?? false;
